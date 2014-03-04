@@ -35,7 +35,7 @@ library("OptionPricingStuff")
 library("QuadraticEstimatingEquations")
 @
 
-\section{Constantes}
+\section{Constantes et données}
 
 <<>>=
 #Nombre de décimales affichées
@@ -44,9 +44,7 @@ options(digits=6)
 alpha.confint <- 0.05 
 #Marge pour test d'hypothèses
 alpha.test <- 0.05
-@
-
-<<>>=
+#Chargement des données
 RETURNS <- head(read.csv("abbeyn.csv",sep="\t",header=TRUE)[,1],-1)
 @
 

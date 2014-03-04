@@ -1,0 +1,56 @@
+\documentclass{report}
+\usepackage{Sweave}
+\usepackage{graphicx}
+\usepackage[francais]{babel} 
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc} 
+\usepackage{amsmath} 
+\usepackage{amsfonts}
+\usepackage{verbatim} 
+\usepackage{float} 
+\usepackage{hyperref}
+\usepackage{scrtime}
+
+\begin{document}
+\input{GAL-Buckle95-concordance}
+
+\title{GAL Buckle 95}
+\author{François Pelletier}
+\maketitle
+\tableofcontents
+
+\section{Chargement des paquets}
+\begin{Schunk}
+\begin{Sinput}
+> setwd("~/git/GAL-Buckle95/")
+> library("actuar")
+> library("MASS")
+> library("xtable")
+> library("multicore")
+> library("moments")
+> library("TTR")
+> library("FourierStuff")
+> library("GeneralizedAsymmetricLaplace")
+> library("GMMStuff")
+> library("OptionPricingStuff")
+> library("QuadraticEstimatingEquations")
+\end{Sinput}
+\end{Schunk}
+
+\section{Constantes et données}
+
+\begin{Schunk}
+\begin{Sinput}
+> #Nombre de décimales affichées
+> options(digits=6)
+> #Marge pour intervalles de confiance
+> alpha.confint <- 0.05 
+> #Marge pour test d'hypothèses
+> alpha.test <- 0.05
+> #Chargement des données
+> RETURNS <- head(read.csv("abbeyn.csv",sep="\t",header=TRUE)[,1],-1)
+\end{Sinput}
+\end{Schunk}
+
+
+\end{document}
