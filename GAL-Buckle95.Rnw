@@ -22,17 +22,17 @@
 \section{Chargement des paquets}
 <<>>=
 setwd("~/git/GAL-Buckle95/")
-library("actuar")
-library("MASS")
-library("xtable")
-library("multicore")
-library("moments")
-library("TTR")
-library("FourierStuff")
-library("GeneralizedAsymmetricLaplace")
-library("GMMStuff")
-library("OptionPricingStuff")
-library("QuadraticEstimatingEquations")
+library(actuar)
+library(MASS)
+library(xtable)
+library(multicore)
+library(moments)
+library(TTR)
+library(FourierStuff)
+library(GeneralizedAsymmetricLaplace)
+library(GMMStuff)
+library(OptionPricingStuff)
+library(QuadraticEstimatingEquations)
 @
 
 \section{Constantes et données}
@@ -48,5 +48,34 @@ alpha.test <- 0.05
 RETURNS <- head(read.csv("abbeyn.csv",sep="\t",header=TRUE)[,1],-1)
 @
 
+\section{Test de normalité}
+
+<<>>=
+EppsPulley.test(RETURNS)
+@
+
+\section{Données mises à l'échelle}
+
+<<>>=
+scaledRETURNS <- as.vector(scale(RETURNS))
+@
+
+\section{Estimation}
+
+<<>>=
+## Point de départ	
+pt.depart <- startparamGAL(scaledRETURNS)
+## Fonctions pour les moments
+meanQEE <- function(param) mGAL(param,1)
+varianceQEE <- function(param) cmGAL(param,2)
+sdGEE <- function(param) sqrt(cmGAL(param,2))
+skewnessGEE <- function(param) cmGAL(param,3)
+kurtosisGEE <- function(param) cmGAL(param,4)
+## Fonctions pour les dérivées
+dmeanQEE <- function(param) dmGAL(param,1)
+dsdGEE <- function(param) dmGAL(param,2)
+## Estimation gaussienne
+optim1 <- optim(pt.depart,obj.gauss,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdGEE)
+@
 
 \end{document}

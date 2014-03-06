@@ -23,17 +23,17 @@
 \begin{Schunk}
 \begin{Sinput}
 > setwd("~/git/GAL-Buckle95/")
-> library("actuar")
-> library("MASS")
-> library("xtable")
-> library("multicore")
-> library("moments")
-> library("TTR")
-> library("FourierStuff")
-> library("GeneralizedAsymmetricLaplace")
-> library("GMMStuff")
-> library("OptionPricingStuff")
-> library("QuadraticEstimatingEquations")
+> library(actuar)
+> library(MASS)
+> library(xtable)
+> library(multicore)
+> library(moments)
+> library(TTR)
+> library(FourierStuff)
+> library(GeneralizedAsymmetricLaplace)
+> library(GMMStuff)
+> library(OptionPricingStuff)
+> library(QuadraticEstimatingEquations)
 \end{Sinput}
 \end{Schunk}
 
@@ -52,5 +52,58 @@
 \end{Sinput}
 \end{Schunk}
 
+\section{Test de normalité}
 
-\end{document}
+\begin{Schunk}
+\begin{Sinput}
+> EppsPulley.test(RETURNS)
+\end{Sinput}
+\begin{Soutput}
+Epps-Pulley Normality test
+
+ T: 0.626033
+ T*: 0.635568
+p-value: 0.007178
+
+$Tstat
+[1] 0.626033
+
+$Tmod
+[1] 0.635568
+
+$Zscore
+[1] 2.44824
+
+$Pvalue
+[1] 0.00717788
+
+$Reject
+[1] TRUE
+\end{Soutput}
+\end{Schunk}
+
+\section{Données mises à l'échelle}
+
+\begin{Schunk}
+\begin{Sinput}
+> scaledRETURNS <- as.vector(scale(RETURNS))
+\end{Sinput}
+\end{Schunk}
+
+\section{Estimation}
+
+\begin{Schunk}
+\begin{Sinput}
+> ## Point de départ	
+> pt.depart <- startparamGAL(scaledRETURNS)
+> ## Fonctions pour les moments
+> meanQEE <- function(param) mGAL(param,1)
+> varianceQEE <- function(param) cmGAL(param,2)
+> sdGEE <- function(param) sqrt(cmGAL(param,2))
+> skewnessGEE <- function(param) cmGAL(param,3)
+> kurtosisGEE <- function(param) cmGAL(param,4)
+> ## Fonctions pour les dérivées
+> dmeanQEE <- function(param) dmGAL(param,1)
+> dsdGEE <- function(param) dmGAL(param,2)
+> ## Estimation gaussienne
+> optim1 <- optim(pt.depart,obj.gauss,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdGEE)
