@@ -46,6 +46,8 @@ alpha.confint <- 0.05
 alpha.test <- 0.05
 #Chargement des données
 RETURNS <- head(read.csv("abbeyn.csv",sep="\t",header=TRUE)[,1],-1)
+#Taille de l'échantillon
+n <- length(RETURNS)
 @
 
 \section{Test de normalité}
@@ -60,7 +62,7 @@ EppsPulley.test(RETURNS)
 scaledRETURNS <- as.vector(scale(RETURNS))
 @
 
-\section{Estimation}
+\section{Première estimation par QEE}
 
 <<>>=
 ## Point de départ	
@@ -68,14 +70,79 @@ pt.depart <- startparamGAL(scaledRETURNS)
 ## Fonctions pour les moments
 meanQEE <- function(param) mGAL(param,1)
 varianceQEE <- function(param) cmGAL(param,2)
-sdGEE <- function(param) sqrt(cmGAL(param,2))
-skewnessGEE <- function(param) cmGAL(param,3)
-kurtosisGEE <- function(param) cmGAL(param,4)
+sdQEE <- function(param) sqrt(cmGAL(param,2))
+skewnessQEE <- function(param) cmGAL(param,3)
+kurtosisQEE <- function(param) cmGAL(param,4)
 ## Fonctions pour les dérivées
 dmeanQEE <- function(param) dmGAL(param,1)
-dsdGEE <- function(param) dmGAL(param,2)
+dsdQEE <- function(param) dmGAL(param,2)
 ## Estimation gaussienne
-optim1 <- optim(pt.depart,obj.gauss,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdGEE)
+optim1 <- optim(pt.depart,obj.gauss,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE)
+pt.optim1 <- optim1$par
+## Estimation de crowder
+optim2 <- optim(pt.depart,obj.Crowder,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE)
+pt.optim2 <- optim2$par
+## Estimation de crowder modifiée
+optim3 <- optim(pt.depart,obj.Crowder.Mod,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE)
+pt.optim3 <- optim3$par
 @
+
+\section{Résultats de la première estimation par QEE}
+
+<<>>=
+	cov.optim1 <- covariance.QEE(M.gauss(pt.optim1,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE),
+			V.gauss(pt.optim1,scaledRETURNS,meanQEE,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),n)
+	cov.optim2 <- covariance.QEE(M.Crowder(pt.optim2,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),
+			V.Crowder(pt.optim2,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),n)
+	cov.optim3 <- covariance.QEE(M.Crowder.Mod(pt.optim3,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),
+			V.Crowder.Mod(pt.optim3,scaledRETURNS,varianceQEE,dmeanQEE,dsdQEE),n)
+	confidence.interval.QEE(pt.optim1,cov.optim1,n)
+	confidence.interval.QEE(pt.optim2,cov.optim2,n)
+	confidence.interval.QEE(pt.optim3,cov.optim3,n)
+@
+
+\section{Seconde estimation par QEE}
+
+<<>>=
+## Estimation gaussienne
+optim4 <- optim(pt.optim1,obj.gauss,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE,
+		ginv(V.gauss(pt.optim1,scaledRETURNS,meanQEE,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE)))
+pt.optim4 <- optim4$par
+## Estimation de crowder
+optim5 <- optim(pt.optim2,obj.Crowder,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE,
+		ginv(V.Crowder(pt.optim2,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE)))
+pt.optim5 <- optim5$par
+## Estimation de crowder modifiée
+optim6 <- optim(pt.optim3,obj.Crowder.Mod,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE,
+		ginv(V.Crowder.Mod(pt.optim3,scaledRETURNS,varianceQEE,dmeanQEE,dsdQEE)))
+pt.optim6 <- optim6$par
+@
+
+\section{Résultats de la seconde estimation par QEE}
+
+<<>>=
+	cov.optim4 <- covariance.QEE(M.gauss(pt.optim4,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE),
+			V.gauss(pt.optim4,scaledRETURNS,meanQEE,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),n)
+	cov.optim5 <- covariance.QEE(M.Crowder(pt.optim5,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),
+			V.Crowder(pt.optim5,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),n)
+	cov.optim6 <- covariance.QEE(M.Crowder.Mod(pt.optim6,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),
+			V.Crowder.Mod(pt.optim6,scaledRETURNS,varianceQEE,dmeanQEE,dsdQEE),n)
+	confidence.interval.QEE(pt.optim4,cov.optim4,n)
+	confidence.interval.QEE(pt.optim5,cov.optim5,n)
+	confidence.interval.QEE(pt.optim6,cov.optim6,n)
+@
+
+\section{Estimation par GMM}
+
+<<>>=
+	## GMM régulier
+	optim7 <- optim.GMM(pt.depart,conditions.vector=meanvariance.gmm.vector,data=scaledRETURNS,W=diag(2),
+			meanf=meanQEE,variancef=varianceQEE)
+	
+	## GMM itératif
+	optim8 <- iterative.GMM(pt.depart,conditions.vector=meanvariance.gmm.vector,data=scaledRETURNS,W=diag(2),
+			meanf=meanQEE,variancef=varianceQEE)
+@
+
 
 \end{document}

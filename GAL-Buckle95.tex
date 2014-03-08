@@ -49,6 +49,8 @@
 > alpha.test <- 0.05
 > #Chargement des données
 > RETURNS <- head(read.csv("abbeyn.csv",sep="\t",header=TRUE)[,1],-1)
+> #Taille de l'échantillon
+> n <- length(RETURNS)
 \end{Sinput}
 \end{Schunk}
 
@@ -90,7 +92,7 @@ $Reject
 \end{Sinput}
 \end{Schunk}
 
-\section{Estimation}
+\section{Première estimation par QEE}
 
 \begin{Schunk}
 \begin{Sinput}
@@ -99,11 +101,137 @@ $Reject
 > ## Fonctions pour les moments
 > meanQEE <- function(param) mGAL(param,1)
 > varianceQEE <- function(param) cmGAL(param,2)
-> sdGEE <- function(param) sqrt(cmGAL(param,2))
-> skewnessGEE <- function(param) cmGAL(param,3)
-> kurtosisGEE <- function(param) cmGAL(param,4)
+> sdQEE <- function(param) sqrt(cmGAL(param,2))
+> skewnessQEE <- function(param) cmGAL(param,3)
+> kurtosisQEE <- function(param) cmGAL(param,4)
 > ## Fonctions pour les dérivées
 > dmeanQEE <- function(param) dmGAL(param,1)
-> dsdGEE <- function(param) dmGAL(param,2)
+> dsdQEE <- function(param) dmGAL(param,2)
 > ## Estimation gaussienne
-> optim1 <- optim(pt.depart,obj.gauss,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdGEE)
+> optim1 <- optim(pt.depart,obj.gauss,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE)
+> pt.optim1 <- optim1$par
+> ## Estimation de crowder
+> optim2 <- optim(pt.depart,obj.Crowder,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE)
+> pt.optim2 <- optim2$par
+> ## Estimation de crowder modifiée
+> optim3 <- optim(pt.depart,obj.Crowder.Mod,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE)
+> pt.optim3 <- optim3$par
+\end{Sinput}
+\end{Schunk}
+
+\section{Résultats de la première estimation par QEE}
+
+\begin{Schunk}
+\begin{Sinput}
+> 	cov.optim1 <- covariance.QEE(M.gauss(pt.optim1,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE),
++ 			V.gauss(pt.optim1,scaledRETURNS,meanQEE,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),n)
+> 	cov.optim2 <- covariance.QEE(M.Crowder(pt.optim2,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),
++ 			V.Crowder(pt.optim2,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),n)
+> 	cov.optim3 <- covariance.QEE(M.Crowder.Mod(pt.optim3,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),
++ 			V.Crowder.Mod(pt.optim3,scaledRETURNS,varianceQEE,dmeanQEE,dsdQEE),n)
+> 	confidence.interval.QEE(pt.optim1,cov.optim1,n)
+\end{Sinput}
+\begin{Soutput}
+         LOWER  ESTIMATE     UPPER
+[1,] -0.780018 -0.726048 -0.672077
+[2,]  0.436002  0.596316  0.756630
+[3,]  0.262650  0.359186  0.455722
+[4,]  1.994757  2.021370  2.047982
+\end{Soutput}
+\begin{Sinput}
+> 	confidence.interval.QEE(pt.optim2,cov.optim2,n)
+\end{Sinput}
+\begin{Soutput}
+         LOWER  ESTIMATE     UPPER
+[1,] -0.694457 -0.627404 -0.560351
+[2,]  0.413764  0.640292  0.866820
+[3,]  0.232650  0.334028  0.435405
+[4,]  1.839966  1.878296  1.916626
+\end{Soutput}
+\begin{Sinput}
+> 	confidence.interval.QEE(pt.optim3,cov.optim3,n)
+\end{Sinput}
+\begin{Soutput}
+         LOWER  ESTIMATE     UPPER
+[1,] -0.765288 -0.711439 -0.657589
+[2,]  0.455485  0.606642  0.757798
+[3,]  0.264669  0.362932  0.461195
+[4,]  1.932691  1.960299  1.987906
+\end{Soutput}
+\end{Schunk}
+
+\section{Seconde estimation par QEE}
+
+\begin{Schunk}
+\begin{Sinput}
+> ## Estimation gaussienne
+> optim4 <- optim(pt.optim1,obj.gauss,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE,
++ 		ginv(V.gauss(pt.optim1,scaledRETURNS,meanQEE,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE)))
+> pt.optim4 <- optim4$par
+> ## Estimation de crowder
+> optim5 <- optim(pt.optim2,obj.Crowder,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE,
++ 		ginv(V.Crowder(pt.optim2,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE)))
+> pt.optim5 <- optim5$par
+> ## Estimation de crowder modifiée
+> optim6 <- optim(pt.optim3,obj.Crowder.Mod,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE,
++ 		ginv(V.Crowder.Mod(pt.optim3,scaledRETURNS,varianceQEE,dmeanQEE,dsdQEE)))
+> pt.optim6 <- optim6$par
+\end{Sinput}
+\end{Schunk}
+
+\section{Résultats de la seconde estimation par QEE}
+
+\begin{Schunk}
+\begin{Sinput}
+> 	cov.optim4 <- covariance.QEE(M.gauss(pt.optim4,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE),
++ 			V.gauss(pt.optim4,scaledRETURNS,meanQEE,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),n)
+> 	cov.optim5 <- covariance.QEE(M.Crowder(pt.optim5,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),
++ 			V.Crowder(pt.optim5,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),n)
+> 	cov.optim6 <- covariance.QEE(M.Crowder.Mod(pt.optim6,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),
++ 			V.Crowder.Mod(pt.optim6,scaledRETURNS,varianceQEE,dmeanQEE,dsdQEE),n)
+> 	confidence.interval.QEE(pt.optim4,cov.optim4,n)
+\end{Sinput}
+\begin{Soutput}
+         LOWER  ESTIMATE     UPPER
+[1,] -0.779792 -0.725853 -0.671914
+[2,]  0.436017  0.596319  0.756622
+[3,]  0.262456  0.358969  0.455482
+[4,]  1.995452  2.022048  2.048644
+\end{Soutput}
+\begin{Sinput}
+> 	confidence.interval.QEE(pt.optim5,cov.optim5,n)
+\end{Sinput}
+\begin{Soutput}
+         LOWER  ESTIMATE     UPPER
+[1,] -0.692712 -0.625874 -0.559036
+[2,]  0.414139  0.640445  0.866750
+[3,]  0.231568  0.332845  0.434122
+[4,]  1.842116  1.880376  1.918636
+\end{Soutput}
+\begin{Sinput}
+> 	confidence.interval.QEE(pt.optim6,cov.optim6,n)
+\end{Sinput}
+\begin{Soutput}
+         LOWER  ESTIMATE     UPPER
+[1,] -0.766288 -0.712450 -0.658612
+[2,]  0.455051  0.606193  0.757334
+[3,]  0.264972  0.363196  0.461419
+[4,]  1.934050  1.961614  1.989178
+\end{Soutput}
+\end{Schunk}
+
+\section{Estimation par GMM}
+
+\begin{Schunk}
+\begin{Sinput}
+> 	## GMM régulier
+> 	optim7 <- optim.GMM(pt.depart,conditions.vector=meanvariance.gmm.vector,data=scaledRETURNS,W=diag(2),
++ 			meanf=meanQEE,variancef=varianceQEE)
+> 	## GMM itératif
+> 	optim8 <- iterative.GMM(pt.depart,conditions.vector=meanvariance.gmm.vector,data=scaledRETURNS,W=diag(2),
++ 			meanf=meanQEE,variancef=varianceQEE)
+\end{Sinput}
+\end{Schunk}
+
+
+\end{document}
