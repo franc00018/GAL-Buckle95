@@ -19,6 +19,8 @@
 \maketitle
 \tableofcontents
 
+\chapter{Initialisation}
+
 \section{Chargement des paquets}
 <<>>=
 setwd("~/git/GAL-Buckle95/")
@@ -56,17 +58,19 @@ n <- length(RETURNS)
 EppsPulley.test(RETURNS)
 @
 
+\chapter{Estimation}
+
 \section{Données mises à l'échelle}
 
 <<>>=
-scaledRETURNS <- as.vector(scale(RETURNS))
+sRET <- as.vector(scale(RETURNS))
 @
 
 \section{Première estimation par QEE}
 
 <<>>=
 ## Point de départ	
-pt.depart <- startparamGAL(scaledRETURNS)
+pt.depart <- startparamGAL(sRET)
 ## Fonctions pour les moments
 meanQEE <- function(param) mGAL(param,1)
 varianceQEE <- function(param) cmGAL(param,2)
@@ -77,72 +81,197 @@ kurtosisQEE <- function(param) cmGAL(param,4)
 dmeanQEE <- function(param) dmGAL(param,1)
 dsdQEE <- function(param) dmGAL(param,2)
 ## Estimation gaussienne
-optim1 <- optim(pt.depart,obj.gauss,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE)
+optim1 <- optim(pt.depart,obj.gauss,gr=NULL,sRET,
+		meanQEE,varianceQEE,dmeanQEE,dsdQEE)
 pt.optim1 <- optim1$par
 ## Estimation de crowder
-optim2 <- optim(pt.depart,obj.Crowder,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE)
+optim2 <- optim(pt.depart,obj.Crowder,gr=NULL,sRET,
+		meanQEE,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE)
 pt.optim2 <- optim2$par
 ## Estimation de crowder modifiée
-optim3 <- optim(pt.depart,obj.Crowder.Mod,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE)
+optim3 <- optim(pt.depart,obj.Crowder.Mod,gr=NULL,sRET,
+		meanQEE,varianceQEE,dmeanQEE,dsdQEE)
 pt.optim3 <- optim3$par
 @
 
 \section{Résultats de la première estimation par QEE}
 
 <<>>=
-	cov.optim1 <- covariance.QEE(M.gauss(pt.optim1,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE),
-			V.gauss(pt.optim1,scaledRETURNS,meanQEE,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),n)
-	cov.optim2 <- covariance.QEE(M.Crowder(pt.optim2,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),
-			V.Crowder(pt.optim2,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),n)
-	cov.optim3 <- covariance.QEE(M.Crowder.Mod(pt.optim3,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),
-			V.Crowder.Mod(pt.optim3,scaledRETURNS,varianceQEE,dmeanQEE,dsdQEE),n)
-	confidence.interval.QEE(pt.optim1,cov.optim1,n)
-	confidence.interval.QEE(pt.optim2,cov.optim2,n)
-	confidence.interval.QEE(pt.optim3,cov.optim3,n)
+cov.optim1 <- covariance.QEE(M.gauss(pt.optim1,sRET,
+				meanQEE,varianceQEE,dmeanQEE,dsdQEE),
+		V.gauss(pt.optim1,sRET,meanQEE,varianceQEE,
+				skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),n)
+cov.optim2 <- covariance.QEE(M.Crowder(pt.optim2,sRET,
+				varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),
+		V.Crowder(pt.optim2,sRET,varianceQEE,
+				skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),n)
+cov.optim3 <- covariance.QEE(M.Crowder.Mod(pt.optim3,sRET,
+				varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),
+		V.Crowder.Mod(pt.optim3,sRET,varianceQEE,dmeanQEE,dsdQEE),n)
+confidence.interval.QEE(pt.optim1,cov.optim1,n)
+confidence.interval.QEE(pt.optim2,cov.optim2,n)
+confidence.interval.QEE(pt.optim3,cov.optim3,n)
 @
 
 \section{Seconde estimation par QEE}
 
 <<>>=
 ## Estimation gaussienne
-optim4 <- optim(pt.optim1,obj.gauss,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE,
-		ginv(V.gauss(pt.optim1,scaledRETURNS,meanQEE,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE)))
+optim4 <- optim(pt.optim1,obj.gauss,gr=NULL,sRET,
+		meanQEE,varianceQEE,dmeanQEE,dsdQEE,
+		ginv(V.gauss(pt.optim1,sRET,meanQEE,
+						varianceQEE,skewnessQEE,kurtosisQEE,
+						dmeanQEE,dsdQEE)))
 pt.optim4 <- optim4$par
 ## Estimation de crowder
-optim5 <- optim(pt.optim2,obj.Crowder,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE,
-		ginv(V.Crowder(pt.optim2,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE)))
+optim5 <- optim(pt.optim2,obj.Crowder,gr=NULL,sRET,
+		meanQEE,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE,
+		ginv(V.Crowder(pt.optim2,sRET,varianceQEE,skewnessQEE,
+						kurtosisQEE,dmeanQEE,dsdQEE)))
 pt.optim5 <- optim5$par
 ## Estimation de crowder modifiée
-optim6 <- optim(pt.optim3,obj.Crowder.Mod,gr=NULL,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE,
-		ginv(V.Crowder.Mod(pt.optim3,scaledRETURNS,varianceQEE,dmeanQEE,dsdQEE)))
+optim6 <- optim(pt.optim3,obj.Crowder.Mod,gr=NULL,sRET,
+		meanQEE,varianceQEE,dmeanQEE,dsdQEE,
+		ginv(V.Crowder.Mod(pt.optim3,sRET,varianceQEE,
+						dmeanQEE,dsdQEE)))
 pt.optim6 <- optim6$par
 @
 
 \section{Résultats de la seconde estimation par QEE}
 
 <<>>=
-	cov.optim4 <- covariance.QEE(M.gauss(pt.optim4,scaledRETURNS,meanQEE,varianceQEE,dmeanQEE,dsdQEE),
-			V.gauss(pt.optim4,scaledRETURNS,meanQEE,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),n)
-	cov.optim5 <- covariance.QEE(M.Crowder(pt.optim5,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),
-			V.Crowder(pt.optim5,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),n)
-	cov.optim6 <- covariance.QEE(M.Crowder.Mod(pt.optim6,scaledRETURNS,varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),
-			V.Crowder.Mod(pt.optim6,scaledRETURNS,varianceQEE,dmeanQEE,dsdQEE),n)
-	confidence.interval.QEE(pt.optim4,cov.optim4,n)
-	confidence.interval.QEE(pt.optim5,cov.optim5,n)
-	confidence.interval.QEE(pt.optim6,cov.optim6,n)
+cov.optim4 <- covariance.QEE(M.gauss(pt.optim4,sRET,
+				meanQEE,varianceQEE,dmeanQEE,dsdQEE),
+		V.gauss(pt.optim4,sRET,meanQEE,varianceQEE,
+				skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),n)
+cov.optim5 <- covariance.QEE(M.Crowder(pt.optim5,sRET,
+				varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),
+		V.Crowder(pt.optim5,sRET,varianceQEE,skewnessQEE,
+				kurtosisQEE,dmeanQEE,dsdQEE),n)
+cov.optim6 <- covariance.QEE(M.Crowder.Mod(pt.optim6,sRET,
+				varianceQEE,skewnessQEE,kurtosisQEE,dmeanQEE,dsdQEE),
+		V.Crowder.Mod(pt.optim6,sRET,varianceQEE,dmeanQEE,dsdQEE),n)
+confidence.interval.QEE(pt.optim4,cov.optim4,n)
+confidence.interval.QEE(pt.optim5,cov.optim5,n)
+confidence.interval.QEE(pt.optim6,cov.optim6,n)
 @
 
 \section{Estimation par GMM}
 
 <<>>=
-	## GMM régulier
-	optim7 <- optim.GMM(pt.depart,conditions.vector=meanvariance.gmm.vector,data=scaledRETURNS,W=diag(2),
-			meanf=meanQEE,variancef=varianceQEE)
-	
-	## GMM itératif
-	optim8 <- iterative.GMM(pt.depart,conditions.vector=meanvariance.gmm.vector,data=scaledRETURNS,W=diag(2),
-			meanf=meanQEE,variancef=varianceQEE)
+## GMM régulier
+optim7 <- optim.GMM(pt.depart,
+		conditions.vector=meanvariance.gmm.vector,
+		data=sRET,W=diag(2),
+		meanf=meanQEE,variancef=varianceQEE)
+pt.optim7 <- optim7$par
+cov.optim7 <- mean.variance.GMM.gradient.GAL(pt.optim7,sRET) %*% 
+		covariance.GMM(meanvariance.gmm.vector,pt.optim7,sRET,
+				meanf=meanQEE,variancef=varianceQEE) %*%
+		t(mean.variance.GMM.gradient.GAL(pt.optim7,sRET)) / n
+## GMM itératif
+optim8 <- iterative.GMM(pt.depart,
+		conditions.vector=meanvariance.gmm.vector,
+		data=sRET,W=diag(2),
+		meanf=meanQEE,variancef=varianceQEE)
+pt.optim8 <- optim8$par
+cov.optim8 <-  mean.variance.GMM.gradient.GAL(pt.optim8,sRET) %*% 
+		optim8$cov %*%  
+		t(mean.variance.GMM.gradient.GAL(pt.optim8,sRET)) / n
+confidence.interval.QEE(pt.optim7,cov.optim7,n)
+confidence.interval.QEE(pt.optim8,cov.optim8,n)
 @
+
+\chapter{Comparaison des résultats}
+<<>>=
+# Aggrégation des estimateurs (pour simplifier les calculs)
+pts.estim <- cbind(pt.optim1,pt.optim2,pt.optim3,pt.optim4,
+		pt.optim5,pt.optim6,pt.optim7,pt.optim8)
+l.pts.estim <- as.list(data.frame(pts.estim))
+@
+
+\section{Fonction de répartition}
+<<>>=
+# Points d'évaluation
+xi <- seq(2*min(sRET),2*max(sRET),length.out=2^6)
+# Fonction de répartition par intégration de la fonction caractéristique
+dist1 <- cbind(cftocdf(xi,cfGAL,param=pt.optim1),
+		cftocdf(xi,cfGAL,param=pt.optim2),
+		cftocdf(xi,cfGAL,param=pt.optim3),
+		cftocdf(xi,cfGAL,param=pt.optim4),
+		cftocdf(xi,cfGAL,param=pt.optim5),
+		cftocdf(xi,cfGAL,param=pt.optim6),
+		cftocdf(xi,cfGAL,param=pt.optim7),
+		cftocdf(xi,cfGAL,param=pt.optim8))
+# Fonction de répartition par point de selle
+dist2 <- cbind(psaddleapproxGAL(xi,pt.optim1),
+		psaddleapproxGAL(xi,pt.optim2),
+		psaddleapproxGAL(xi,pt.optim3),
+		psaddleapproxGAL(xi,pt.optim4),
+		psaddleapproxGAL(xi,pt.optim5),
+		psaddleapproxGAL(xi,pt.optim6),
+		psaddleapproxGAL(xi,pt.optim7),
+		psaddleapproxGAL(xi,pt.optim8))
+# Fonction de répartition par intégration de la fonction de densité
+dist3 <- cbind(pGAL(xi,pt.optim1),
+		pGAL(xi,pt.optim2),
+		pGAL(xi,pt.optim3),
+		pGAL(xi,pt.optim4),
+		pGAL(xi,pt.optim5),
+		pGAL(xi,pt.optim6),
+		pGAL(xi,pt.optim7),
+		pGAL(xi,pt.optim8))
+@
+\pagebreak
+\subsection{Graphiques}
+
+<<results=tex>>=
+	for (i in 1:8)
+	{
+		file<-paste("dist-GAL-",i,".pdf",sep="")
+		pdf(file=file,paper="special",width=6,height=6)
+		plot.ecdf(sRET,main=paste("Fonction de répartition ",i))
+		lines(xi,dist1[,i],col="green")
+		lines(xi,dist2[,1],col="red")
+		lines(xi,dist3[,1],col="pink")
+		lines(xi,pnorm(xi),type="l",col="blue")
+		dev.off()
+		cat("\\includegraphics[height=2in,width=2in]{",
+				file,"}\n",sep="")
+	}
+@
+
+\subsection{Statistiques}
+Test du $\chi^2$, Méthode avec intégration
+<<results=tex>>=
+chisquare.test1 <- function(param,DATA.hist,FUN,method)
+{
+	chisquare.test(DATA.hist,FUN,param,method=method)
+}
+xtable(do.call(rbind,lapply(l.pts.estim,chisquare.test1,hist(sRET),cfGAL,"integral")),digits=6)
+@
+
+Test du $\chi^2$, Méthode avec point de selle
+<<results=tex>>=
+xtable(do.call(rbind,lapply(l.pts.estim,chisquare.test1,hist(sRET),pGAL,"saddlepoint")),digits=6)
+@
+
+Statistique de Kolmogorov-Smirnov
+<<results=tex>>=
+	ks.test1 <- function(param,x,y) ks.test(x,y,param)
+	xtable(do.call(rbind,mclapply(l.pts.estim,ks.test1,sRET,"pGAL")),digits=6)
+@
+
+Statistique de distance minimale
+
+<<results=tex>>=
+	tvariate1 <- seq(-.1,.1,by=0.01)
+	xtable(do.call(rbind,mclapply(l.pts.estim,md.test,sRET,tvariate1,cfGAL,empCF)),digits=6)
+@
+
+
+
+
 
 
 \end{document}

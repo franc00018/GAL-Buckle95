@@ -27,5 +27,6 @@
 *.mtc
 *.mtc1
 *.out
+*.pdf
 *.synctex.gz
 /GAL-Buckle95-concordance.tex
