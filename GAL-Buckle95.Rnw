@@ -269,6 +269,8 @@ Statistique de distance minimale
 	xtable(do.call(rbind,mclapply(l.pts.estim,md.test,sRET,tvariate1,cfGAL,empCF)),digits=6)
 @
 
+\section{Fonction de densité}
+
 
 
 
