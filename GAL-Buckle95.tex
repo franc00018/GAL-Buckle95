@@ -1,4 +1,5 @@
-\documentclass{report}
+\documentclass[letter]{report}
+\usepackage[margin=0.5in]{geometry}
 \usepackage{Sweave}
 \usepackage{graphicx}
 \usepackage[francais]{babel} 
@@ -30,7 +31,6 @@
 > library(xtable)
 > library(multicore)
 > library(moments)
-> library(TTR)
 > library(FourierStuff)
 > library(GeneralizedAsymmetricLaplace)
 > library(GMMStuff)
@@ -53,6 +53,8 @@
 > RETURNS <- head(read.csv("abbeyn.csv",sep="\t",header=TRUE)[,1],-1)
 > #Taille de l'échantillon
 > n <- length(RETURNS)
+> #Nom de l'échantillon
+> strData <- "Buckle95"
 \end{Sinput}
 \end{Schunk}
 
@@ -255,7 +257,7 @@ $Reject
 + 		meanf=meanQEE,variancef=varianceQEE)
 > pt.optim7 <- optim7$par
 > cov.optim7 <- mean.variance.GMM.gradient.GAL(pt.optim7,sRET) %*% 
-+ 		covariance.GMM(meanvariance.gmm.vector,pt.optim7,sRET,
++ 		covariance.GMM(pt.optim7,meanvariance.gmm.vector,sRET,
 + 				meanf=meanQEE,variancef=varianceQEE) %*%
 + 		t(mean.variance.GMM.gradient.GAL(pt.optim7,sRET)) / n
 > ## GMM itératif
@@ -337,28 +339,28 @@ $Reject
 
 \begin{Schunk}
 \begin{Sinput}
-> 	for (i in 1:8)
-+ 	{
-+ 		file<-paste("dist-GAL-",i,".pdf",sep="")
-+ 		pdf(file=file,paper="special",width=6,height=6)
-+ 		plot.ecdf(sRET,main=paste("Fonction de répartition ",i))
-+ 		lines(xi,dist1[,i],col="green")
-+ 		lines(xi,dist2[,1],col="red")
-+ 		lines(xi,dist3[,1],col="pink")
-+ 		lines(xi,pnorm(xi),type="l",col="blue")
-+ 		dev.off()
-+ 		cat("\\includegraphics[height=2in,width=2in]{",
-+ 				file,"}\n",sep="")
-+ 	}
+> for (i in 1:8)
++ {
++ 	file<-paste(strData,"-repart-",i,".pdf",sep="")
++ 	pdf(file=file,paper="special",width=6,height=6)
++ 	plot.ecdf(sRET,main=paste("Fonction de répartition ",i))
++ 	lines(xi,dist1[,i],col="green")
++ 	lines(xi,dist2[,1],col="red")
++ 	lines(xi,dist3[,1],col="pink")
++ 	lines(xi,pnorm(xi),type="l",col="blue")
++ 	dev.off()
++ 	cat("\\includegraphics[height=4in,width=4in]{",
++ 			file,"}\n",sep="")
++ }
 \end{Sinput}
-\includegraphics[height=2in,width=2in]{dist-GAL-1.pdf}
-\includegraphics[height=2in,width=2in]{dist-GAL-2.pdf}
-\includegraphics[height=2in,width=2in]{dist-GAL-3.pdf}
-\includegraphics[height=2in,width=2in]{dist-GAL-4.pdf}
-\includegraphics[height=2in,width=2in]{dist-GAL-5.pdf}
-\includegraphics[height=2in,width=2in]{dist-GAL-6.pdf}
-\includegraphics[height=2in,width=2in]{dist-GAL-7.pdf}
-\includegraphics[height=2in,width=2in]{dist-GAL-8.pdf}\end{Schunk}
+\includegraphics[height=4in,width=4in]{Buckle95-repart-1.pdf}
+\includegraphics[height=4in,width=4in]{Buckle95-repart-2.pdf}
+\includegraphics[height=4in,width=4in]{Buckle95-repart-3.pdf}
+\includegraphics[height=4in,width=4in]{Buckle95-repart-4.pdf}
+\includegraphics[height=4in,width=4in]{Buckle95-repart-5.pdf}
+\includegraphics[height=4in,width=4in]{Buckle95-repart-6.pdf}
+\includegraphics[height=4in,width=4in]{Buckle95-repart-7.pdf}
+\includegraphics[height=4in,width=4in]{Buckle95-repart-8.pdf}\end{Schunk}
 
 \subsection{Statistiques}
 Test du $\chi^2$, Méthode avec intégration
@@ -368,10 +370,11 @@ Test du $\chi^2$, Méthode avec intégration
 + {
 + 	chisquare.test(DATA.hist,FUN,param,method=method)
 + }
-> xtable(do.call(rbind,lapply(l.pts.estim,chisquare.test1,hist(sRET),cfGAL,"integral")),digits=6)
+> xtable(do.call(rbind,lapply(l.pts.estim,chisquare.test1,hist(sRET),
++ 						cfGAL,"integral")),digits=6)
 \end{Sinput}
-% latex table generated in R 3.0.2 by xtable 1.7-1 package
-% Sat Mar 15 11:38:58 2014
+% latex table generated in R 3.0.3 by xtable 1.7-3 package
+% Sat Mar 29 12:42:33 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrr}
@@ -393,10 +396,11 @@ pt.optim1 & 5.473824 & 6.000000 & 0.484626 \\
 Test du $\chi^2$, Méthode avec point de selle
 \begin{Schunk}
 \begin{Sinput}
-> xtable(do.call(rbind,lapply(l.pts.estim,chisquare.test1,hist(sRET),pGAL,"saddlepoint")),digits=6)
+> xtable(do.call(rbind,lapply(l.pts.estim,chisquare.test1,hist(sRET),
++ 						pGAL,"saddlepoint")),digits=6)
 \end{Sinput}
-% latex table generated in R 3.0.2 by xtable 1.7-1 package
-% Sat Mar 15 11:38:58 2014
+% latex table generated in R 3.0.3 by xtable 1.7-3 package
+% Sat Mar 29 12:42:33 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrr}
@@ -418,11 +422,11 @@ pt.optim1 & 9.293574 & 6.000000 & 0.157728 \\
 Statistique de Kolmogorov-Smirnov
 \begin{Schunk}
 \begin{Sinput}
-> 	ks.test1 <- function(param,x,y) ks.test(x,y,param)
-> 	xtable(do.call(rbind,mclapply(l.pts.estim,ks.test1,sRET,"pGAL")),digits=6)
+> ks.test1 <- function(param,x,y) ks.test(x,y,param)
+> xtable(do.call(rbind,mclapply(l.pts.estim,ks.test1,sRET,"pGAL")),digits=6)
 \end{Sinput}
-% latex table generated in R 3.0.2 by xtable 1.7-1 package
-% Sat Mar 15 11:38:58 2014
+% latex table generated in R 3.0.3 by xtable 1.7-3 package
+% Sat Mar 29 12:42:33 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrr}
@@ -445,11 +449,12 @@ Statistique de distance minimale
 
 \begin{Schunk}
 \begin{Sinput}
-> 	tvariate1 <- seq(-.1,.1,by=0.01)
-> 	xtable(do.call(rbind,mclapply(l.pts.estim,md.test,sRET,tvariate1,cfGAL,empCF)),digits=6)
+> tvariate1 <- seq(-.1,.1,by=0.01)
+> xtable(do.call(rbind,mclapply(l.pts.estim,
++ 						md.test,sRET,tvariate1,cfGAL,empCF)),digits=6)
 \end{Sinput}
-% latex table generated in R 3.0.2 by xtable 1.7-1 package
-% Sat Mar 15 11:38:58 2014
+% latex table generated in R 3.0.3 by xtable 1.7-3 package
+% Sat Mar 29 12:42:33 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrr}
@@ -467,6 +472,240 @@ pt.optim1 & 0.000422 & 21.000000 & 0.000000 \\
    \hline
 \end{tabular}
 \end{table}\end{Schunk}
+
+\section{Fonction de densité}
+
+Intégration de la fonction de densité approximée avec le point de selle, pour la
+normaliser en fonction qui intègre à 1.
+
+\begin{Schunk}
+\begin{Sinput}
+> f_integrale_saddle <- function(param,f,lower,upper) 
++ 	integrate(f,lower,upper,param)$value
+> norm_int_saddle <- sapply(l.pts.estim,f_integrale_saddle,
++ 		f=dsaddleapproxGAL,lower=-Inf,upper=Inf)
+\end{Sinput}
+\end{Schunk}
+
+Séquence de points pour les graphiques
+\begin{Schunk}
+\begin{Sinput}
+> x_sRET <- seq(min(sRET)-sd(sRET),max(sRET)+sd(sRET),length.out=50)
+\end{Sinput}
+\end{Schunk}
+
+Graphique de la fonction de densité
+
+\begin{Schunk}
+\begin{Sinput}
+> colors2=c("black","red","green","blue","grey")
+> for (i in 1:dim(pts.estim)[2])
++ {
++ 	file=paste(strData,"-densite-", i, ".pdf", sep="")
++ 	pdf(file=file, paper="special", width=6, height=6)
++ 	plot(density(sRET),ylim=c(0,.7),type="l",
++ 			main=paste("Densité de",strData, i),xlab=strData,
++ 			ylab="f",lwd=2,lty=1)
++ 	points(x_sRET,
++ 			dGAL(x_sRET,pts.estim[,i]),
++ 			type="b",ylim=c(0,4),col="red",pch=19,lwd=2,lty=2)
++ 	points(x_sRET,
++ 			dsaddleapproxGAL(x_sRET,pts.estim[,i])/norm_int_saddle[i],
++ 			type="b",ylim=c(0,4),col="green",pch=20,lwd=2,lty=3)
++ 	
++ 	lines(x_sRET,dnorm(x_sRET),type="b",col="blue",
++ 			pch=21,lwd=2,lty=4)
++ 	points(seq(-2,4,length.out=1000)[seq(40,1000,by=40)],
++ 			cftodensity.fft(cfGAL,1000,-2,4,pts.estim[,i])$dens[seq(40,1000,by=40)],
++ 			type="b",col="grey",pch=23,lty=6)
++ 	legend(quantile(sRET,0.9),0.7, c("emp","est.GAL","pt.selle","appx.nrm","fft"),
++ 			cex=0.8, col=colors2, pch=c(NA,19:23), lty=1:6, title="Courbes")
++ 	dev.off()
++ 	cat("\\includegraphics[height=4in, width=4in]{"
++ 			,file, "}\n", sep="")
++ }  
+\end{Sinput}
+\includegraphics[height=4in, width=4in]{Buckle95-densite-1.pdf}
+\includegraphics[height=4in, width=4in]{Buckle95-densite-2.pdf}
+\includegraphics[height=4in, width=4in]{Buckle95-densite-3.pdf}
+\includegraphics[height=4in, width=4in]{Buckle95-densite-4.pdf}
+\includegraphics[height=4in, width=4in]{Buckle95-densite-5.pdf}
+\includegraphics[height=4in, width=4in]{Buckle95-densite-6.pdf}
+\includegraphics[height=4in, width=4in]{Buckle95-densite-7.pdf}
+\includegraphics[height=4in, width=4in]{Buckle95-densite-8.pdf}\end{Schunk}
+
+\subsection{Tests avec contraintes}
+
+Test de Wald
+
+\begin{Schunk}
+\begin{Sinput}
+> R <- matrix(c(0,0,1,0,
++ 				0,0,0,1),ncol=4)
+> r <- matrix(c(0,0),ncol=1)
+> V <- lapply(l.pts.estim,covariance.GMM,meanvariance.gmm.vector,
++ 		sRET,meanQEE,varianceQEE)
+> D <- lapply(l.pts.estim,mean.variance.GMM.gradient.GAL,sRET)
+> xtable(mapply(Wald.Test,l.pts.estim,n,list(R),list(r),V,D),
++ 		caption="Test de Wald", digits=2)
+\end{Sinput}
+\begin{Soutput}
+% latex table generated in R 3.0.3 by xtable 1.7-3 package
+% Sat Mar 29 12:42:33 2014
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrrr}
+  \hline
+ & pt.optim1 & pt.optim2 & pt.optim3 & pt.optim4 & pt.optim5 & pt.optim6 & pt.optim7 & pt.optim8 \\ 
+  \hline
+wald.stat & 1861.21 & 1796.75 & 1690.26 & 1865.01 & 1814.81 & 1690.62 & 2111.08 & 2175.45 \\ 
+  p.value & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\ 
+  reject & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\ 
+   \hline
+\end{tabular}
+\caption{Test de Wald} 
+\end{table}
+\end{Soutput}
+\end{Schunk}
+
+\subsection{Vrais paramètres}
+
+Comme nous avons estimé avec des données centrées et réduites, nous utilisons
+une propriété de la distribution GAL qui nous permet d'obtenir les paramètres
+des rendements non réduits.
+
+\begin{Schunk}
+\begin{Sinput}
+> pts.estim.ns <- apply(pts.estim,2,scaleGAL,type="mu",
++ 		mean(RETURNS),sd(RETURNS))
+\end{Sinput}
+\end{Schunk}
+
+\begin{Schunk}
+\begin{Sinput}
+> 	xtable(pts.estim.ns, 
++ 			caption="Paramètres des données non centrées et réduites",
++ 			digits=4)
+\end{Sinput}
+% latex table generated in R 3.0.3 by xtable 1.7-3 package
+% Sat Mar 29 12:42:33 2014
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrrr}
+  \hline
+ & pt.optim1 & pt.optim2 & pt.optim3 & pt.optim4 & pt.optim5 & pt.optim6 & pt.optim7 & pt.optim8 \\ 
+  \hline
+1 & -0.0092 & -0.0080 & -0.0090 & -0.0092 & -0.0079 & -0.0091 & -0.0081 & -0.0081 \\ 
+  2 & 0.0078 & 0.0083 & 0.0079 & 0.0078 & 0.0083 & 0.0079 & 0.0081 & 0.0081 \\ 
+  3 & 0.0033 & 0.0031 & 0.0033 & 0.0033 & 0.0031 & 0.0033 & 0.0030 & 0.0030 \\ 
+  4 & 2.0214 & 1.8783 & 1.9603 & 2.0220 & 1.8804 & 1.9616 & 1.9660 & 1.9727 \\ 
+   \hline
+\end{tabular}
+\caption{Paramètres des données non centrées et réduites} 
+\end{table}\end{Schunk}
+
+\section{Prix d'options}
+
+\subsection{Données de base}
+
+\begin{Schunk}
+\begin{Sinput}
+> #Taux sans risque
+> rfrate <- .05/365
+> #Échéance
+> T <- 30
+> #Pas de discrétisation courbe des prix
+> pas <- 0.005 
+> #Prix initial
+> stock0 <- 299
+> #Prix d'exercice dans le cours (put)
+> strike1 <- stock0*seq(0.98,1,pas)  
+> #Prix d'exercice hors le cours (put)
+> strike2 <- stock0*seq(1+pas,1.02,pas) 
+> #Prix d'exercice combinés
+> strike <- c(strike1,strike2)
+> #Damping parameter
+> alpha <- 3
+\end{Sinput}
+\end{Schunk}
+
+\subsection{Paramètres neutres au risque}
+
+\begin{Schunk}
+\begin{Sinput}
+> pts.estim.ns.rn <- apply(pts.estim.ns,2,riskneutralparGAL,rfrate)
+> l.pts.estim.ns.rn <- as.list(data.frame(pts.estim.ns.rn))
+\end{Sinput}
+\end{Schunk}
+
+\begin{Schunk}
+\begin{Sinput}
+> xtable(pts.estim.ns.rn,caption="Paramètres neutres au risque",digits=4)
+\end{Sinput}
+% latex table generated in R 3.0.3 by xtable 1.7-3 package
+% Sat Mar 29 12:42:33 2014
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrrr}
+  \hline
+ & pt.optim1 & pt.optim2 & pt.optim3 & pt.optim4 & pt.optim5 & pt.optim6 & pt.optim7 & pt.optim8 \\ 
+  \hline
+1 & -0.0066 & -0.0057 & -0.0065 & -0.0066 & -0.0057 & -0.0065 & -0.0058 & -0.0058 \\ 
+  2 & 0.0078 & 0.0083 & 0.0079 & 0.0078 & 0.0083 & 0.0079 & 0.0081 & 0.0081 \\ 
+  3 & 0.0033 & 0.0031 & 0.0033 & 0.0033 & 0.0031 & 0.0033 & 0.0030 & 0.0030 \\ 
+  4 & 2.0214 & 1.8783 & 1.9603 & 2.0220 & 1.8804 & 1.9616 & 1.9660 & 1.9727 \\ 
+   \hline
+\end{tabular}
+\caption{Paramètres neutres au risque} 
+\end{table}\end{Schunk}
+
+
+\subsection{Méthode de Epps}
+
+\begin{Schunk}
+\begin{Sinput}
+> 	f_putEpps <- function(param,strikeprice,char.fn,eval.time,expiry.time,rate)
++ 		putEpps(strikeprice,char.fn,eval.time,expiry.time,rate,param=param)
+> 	prix_Epps <- as.data.frame(sapply(l.pts.estim.ns.rn,f_putEpps,strike/stock0,cfLM,0,T,rfrate))
+\end{Sinput}
+\end{Schunk}
+
+\begin{Schunk}
+\begin{Sinput}
+> 	xtable(prix_Epps,caption="Prix unitaire de l'option de vente, Méthode de Epps",digits=6)
+\end{Sinput}
+% latex table generated in R 3.0.3 by xtable 1.7-3 package
+% Sat Mar 29 12:42:33 2014
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrrr}
+  \hline
+ & pt.optim1 & pt.optim2 & pt.optim3 & pt.optim4 & pt.optim5 & pt.optim6 & pt.optim7 & pt.optim8 \\ 
+  \hline
+1 & 0.015415 & 0.015785 & 0.015431 & 0.015417 & 0.015794 & 0.015427 & 0.015792 & 0.015819 \\ 
+  2 & 0.017360 & 0.017737 & 0.017377 & 0.017362 & 0.017746 & 0.017372 & 0.017742 & 0.017770 \\ 
+  3 & 0.019456 & 0.019838 & 0.019474 & 0.019458 & 0.019847 & 0.019469 & 0.019843 & 0.019871 \\ 
+  4 & 0.021705 & 0.022090 & 0.021724 & 0.021707 & 0.022099 & 0.021719 & 0.022093 & 0.022122 \\ 
+  5 & 0.024107 & 0.024492 & 0.024126 & 0.024109 & 0.024501 & 0.024121 & 0.024495 & 0.024523 \\ 
+  6 & 0.026661 & 0.027044 & 0.026681 & 0.026663 & 0.027053 & 0.026676 & 0.027046 & 0.027074 \\ 
+  7 & 0.029365 & 0.029745 & 0.029385 & 0.029367 & 0.029753 & 0.029381 & 0.029745 & 0.029773 \\ 
+  8 & 0.032217 & 0.032591 & 0.032238 & 0.032219 & 0.032600 & 0.032233 & 0.032591 & 0.032617 \\ 
+  9 & 0.035214 & 0.035580 & 0.035235 & 0.035216 & 0.035589 & 0.035231 & 0.035579 & 0.035605 \\ 
+   \hline
+\end{tabular}
+\caption{Prix unitaire de l'option de vente, Méthode de Epps} 
+\end{table}\end{Schunk}
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,4 +1,5 @@
-\documentclass{report}
+\documentclass[letter]{report}
+\usepackage[margin=0.5in]{geometry}
 \usepackage{Sweave}
 \usepackage{graphicx}
 \usepackage[francais]{babel} 
@@ -29,7 +30,6 @@ library(MASS)
 library(xtable)
 library(multicore)
 library(moments)
-library(TTR)
 library(FourierStuff)
 library(GeneralizedAsymmetricLaplace)
 library(GMMStuff)
@@ -50,6 +50,8 @@ alpha.test <- 0.05
 RETURNS <- head(read.csv("abbeyn.csv",sep="\t",header=TRUE)[,1],-1)
 #Taille de l'échantillon
 n <- length(RETURNS)
+#Nom de l'échantillon
+strData <- "Buckle95"
 @
 
 \section{Test de normalité}
@@ -166,7 +168,7 @@ optim7 <- optim.GMM(pt.depart,
 		meanf=meanQEE,variancef=varianceQEE)
 pt.optim7 <- optim7$par
 cov.optim7 <- mean.variance.GMM.gradient.GAL(pt.optim7,sRET) %*% 
-		covariance.GMM(meanvariance.gmm.vector,pt.optim7,sRET,
+		covariance.GMM(pt.optim7,meanvariance.gmm.vector,sRET,
 				meanf=meanQEE,variancef=varianceQEE) %*%
 		t(mean.variance.GMM.gradient.GAL(pt.optim7,sRET)) / n
 ## GMM itératif
@@ -226,19 +228,19 @@ dist3 <- cbind(pGAL(xi,pt.optim1),
 \subsection{Graphiques}
 
 <<results=tex>>=
-	for (i in 1:8)
-	{
-		file<-paste("dist-GAL-",i,".pdf",sep="")
-		pdf(file=file,paper="special",width=6,height=6)
-		plot.ecdf(sRET,main=paste("Fonction de répartition ",i))
-		lines(xi,dist1[,i],col="green")
-		lines(xi,dist2[,1],col="red")
-		lines(xi,dist3[,1],col="pink")
-		lines(xi,pnorm(xi),type="l",col="blue")
-		dev.off()
-		cat("\\includegraphics[height=2in,width=2in]{",
-				file,"}\n",sep="")
-	}
+for (i in 1:8)
+{
+	file<-paste(strData,"-repart-",i,".pdf",sep="")
+	pdf(file=file,paper="special",width=6,height=6)
+	plot.ecdf(sRET,main=paste("Fonction de répartition ",i))
+	lines(xi,dist1[,i],col="green")
+	lines(xi,dist2[,1],col="red")
+	lines(xi,dist3[,1],col="pink")
+	lines(xi,pnorm(xi),type="l",col="blue")
+	dev.off()
+	cat("\\includegraphics[height=4in,width=4in]{",
+			file,"}\n",sep="")
+}
 @
 
 \subsection{Statistiques}
@@ -248,28 +250,168 @@ chisquare.test1 <- function(param,DATA.hist,FUN,method)
 {
 	chisquare.test(DATA.hist,FUN,param,method=method)
 }
-xtable(do.call(rbind,lapply(l.pts.estim,chisquare.test1,hist(sRET),cfGAL,"integral")),digits=6)
+xtable(do.call(rbind,lapply(l.pts.estim,chisquare.test1,hist(sRET),
+						cfGAL,"integral")),digits=6)
 @
 
 Test du $\chi^2$, Méthode avec point de selle
 <<results=tex>>=
-xtable(do.call(rbind,lapply(l.pts.estim,chisquare.test1,hist(sRET),pGAL,"saddlepoint")),digits=6)
+xtable(do.call(rbind,lapply(l.pts.estim,chisquare.test1,hist(sRET),
+						pGAL,"saddlepoint")),digits=6)
 @
 
 Statistique de Kolmogorov-Smirnov
 <<results=tex>>=
-	ks.test1 <- function(param,x,y) ks.test(x,y,param)
-	xtable(do.call(rbind,mclapply(l.pts.estim,ks.test1,sRET,"pGAL")),digits=6)
+ks.test1 <- function(param,x,y) ks.test(x,y,param)
+xtable(do.call(rbind,mclapply(l.pts.estim,ks.test1,sRET,"pGAL")),digits=6)
 @
 
 Statistique de distance minimale
 
 <<results=tex>>=
-	tvariate1 <- seq(-.1,.1,by=0.01)
-	xtable(do.call(rbind,mclapply(l.pts.estim,md.test,sRET,tvariate1,cfGAL,empCF)),digits=6)
+tvariate1 <- seq(-.1,.1,by=0.01)
+xtable(do.call(rbind,mclapply(l.pts.estim,
+						md.test,sRET,tvariate1,cfGAL,empCF)),digits=6)
 @
 
 \section{Fonction de densité}
+
+Intégration de la fonction de densité approximée avec le point de selle, pour la
+normaliser en fonction qui intègre à 1.
+
+<<>>=
+f_integrale_saddle <- function(param,f,lower,upper) 
+	integrate(f,lower,upper,param)$value
+norm_int_saddle <- sapply(l.pts.estim,f_integrale_saddle,
+		f=dsaddleapproxGAL,lower=-Inf,upper=Inf)
+@
+
+Séquence de points pour les graphiques
+<<>>=
+x_sRET <- seq(min(sRET)-sd(sRET),max(sRET)+sd(sRET),length.out=50)
+@
+
+Graphique de la fonction de densité
+
+<<results=tex>>=
+colors2=c("black","red","green","blue","grey")
+for (i in 1:dim(pts.estim)[2])
+{
+	file=paste(strData,"-densite-", i, ".pdf", sep="")
+	pdf(file=file, paper="special", width=6, height=6)
+	plot(density(sRET),ylim=c(0,.7),type="l",
+			main=paste("Densité de",strData, i),xlab=strData,
+			ylab="f",lwd=2,lty=1)
+	points(x_sRET,
+			dGAL(x_sRET,pts.estim[,i]),
+			type="b",ylim=c(0,4),col="red",pch=19,lwd=2,lty=2)
+	points(x_sRET,
+			dsaddleapproxGAL(x_sRET,pts.estim[,i])/norm_int_saddle[i],
+			type="b",ylim=c(0,4),col="green",pch=20,lwd=2,lty=3)
+	
+	lines(x_sRET,dnorm(x_sRET),type="b",col="blue",
+			pch=21,lwd=2,lty=4)
+	points(seq(-2,4,length.out=1000)[seq(40,1000,by=40)],
+			cftodensity.fft(cfGAL,1000,-2,4,pts.estim[,i])$dens[seq(40,1000,by=40)],
+			type="b",col="grey",pch=23,lty=6)
+	legend(quantile(sRET,0.9),0.7, c("emp","est.GAL","pt.selle","appx.nrm","fft"),
+			cex=0.8, col=colors2, pch=c(NA,19:23), lty=1:6, title="Courbes")
+	dev.off()
+	cat("\\includegraphics[height=4in, width=4in]{"
+			,file, "}\n", sep="")
+}  
+@
+
+\subsection{Tests avec contraintes}
+
+Test de Wald
+
+<<>>=
+R <- matrix(c(0,0,1,0,
+				0,0,0,1),ncol=4)
+r <- matrix(c(0,0),ncol=1)
+V <- lapply(l.pts.estim,covariance.GMM,meanvariance.gmm.vector,
+		sRET,meanQEE,varianceQEE)
+D <- lapply(l.pts.estim,mean.variance.GMM.gradient.GAL,sRET)
+
+xtable(mapply(Wald.Test,l.pts.estim,n,list(R),list(r),V,D),
+		caption="Test de Wald", digits=2)
+@
+
+\subsection{Vrais paramètres}
+
+Comme nous avons estimé avec des données centrées et réduites, nous utilisons
+une propriété de la distribution GAL qui nous permet d'obtenir les paramètres
+des rendements non réduits.
+
+<<>>=
+pts.estim.ns <- apply(pts.estim,2,scaleGAL,type="mu",
+		mean(RETURNS),sd(RETURNS))
+@
+
+<<results=tex>>=
+	xtable(pts.estim.ns, 
+			caption="Paramètres des données non centrées et réduites",
+			digits=4)
+@
+
+\section{Prix d'options}
+
+\subsection{Données de base}
+
+<<>>=
+#Taux sans risque
+rfrate <- .05/365
+#Échéance
+T <- 30
+#Pas de discrétisation courbe des prix
+pas <- 0.005 
+#Prix initial
+stock0 <- 299
+#Prix d'exercice dans le cours (put)
+strike1 <- stock0*seq(0.98,1,pas)  
+#Prix d'exercice hors le cours (put)
+strike2 <- stock0*seq(1+pas,1.02,pas) 
+#Prix d'exercice combinés
+strike <- c(strike1,strike2)
+#Damping parameter
+alpha <- 3
+@ 
+
+\subsection{Paramètres neutres au risque}
+
+<<>>=
+pts.estim.ns.rn <- apply(pts.estim.ns,2,riskneutralparGAL,rfrate)
+l.pts.estim.ns.rn <- as.list(data.frame(pts.estim.ns.rn))
+@
+
+<<results=tex>>=
+xtable(pts.estim.ns.rn,caption="Paramètres neutres au risque",digits=4)
+@
+
+
+\subsection{Méthode de Epps}
+
+<<>>=
+	f_putEpps <- function(param,strikeprice,char.fn,eval.time,expiry.time,rate)
+		putEpps(strikeprice,char.fn,eval.time,expiry.time,rate,param=param)
+	prix_Epps <- as.data.frame(sapply(l.pts.estim.ns.rn,f_putEpps,strike/stock0,cfLM,0,T,rfrate))
+@
+
+<<results=tex>>=
+	xtable(prix_Epps,caption="Prix unitaire de l'option de vente, Méthode de Epps",digits=6)
+@
+
+
+
+
+
+
+
+
+
+
+
 
 
 
