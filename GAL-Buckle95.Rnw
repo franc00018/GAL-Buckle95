@@ -13,7 +13,6 @@
 \usepackage{scrtime}
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 
 \title{GAL Buckle 95}
 \author{François Pelletier}
@@ -24,11 +23,11 @@
 
 \section{Chargement des paquets}
 <<>>=
-setwd("~/git/GAL-Buckle95/")
+setwd("~/maitrise/GAL-Buckle95/")
 library(actuar)
 library(MASS)
 library(xtable)
-library(multicore)
+library(parallel)
 library(moments)
 library(FourierStuff)
 library(GeneralizedAsymmetricLaplace)
@@ -393,8 +392,8 @@ xtable(pts.estim.ns.rn,caption="Paramètres neutres au risque",digits=4)
 \subsection{Méthode de Epps}
 
 <<>>=
-	f_putEpps <- function(param,strikeprice,char.fn,eval.time,expiry.time,rate)
-		putEpps(strikeprice,char.fn,eval.time,expiry.time,rate,param=param)
+	f_putEpps <- function(param,strikeprice,char.fn,eval.time,expiry.time,rate,...)
+		putEpps(strikeprice,char.fn,param,eval.time,expiry.time,rate,...)
 	prix_Epps <- as.data.frame(sapply(l.pts.estim.ns.rn,f_putEpps,strike/stock0,cfLM,0,T,rfrate))
 @
 

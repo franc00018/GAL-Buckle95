@@ -13,7 +13,6 @@
 \usepackage{scrtime}
 
 \begin{document}
-\input{GAL-Buckle95-concordance}
 
 \title{GAL Buckle 95}
 \author{François Pelletier}
@@ -25,11 +24,11 @@
 \section{Chargement des paquets}
 \begin{Schunk}
 \begin{Sinput}
-> setwd("~/git/GAL-Buckle95/")
+> setwd("~/maitrise/GAL-Buckle95/")
 > library(actuar)
 > library(MASS)
 > library(xtable)
-> library(multicore)
+> library(parallel)
 > library(moments)
 > library(FourierStuff)
 > library(GeneralizedAsymmetricLaplace)
@@ -373,8 +372,8 @@ Test du $\chi^2$, Méthode avec intégration
 > xtable(do.call(rbind,lapply(l.pts.estim,chisquare.test1,hist(sRET),
 + 						cfGAL,"integral")),digits=6)
 \end{Sinput}
-% latex table generated in R 3.0.3 by xtable 1.7-3 package
-% Sat Mar 29 12:42:33 2014
+% latex table generated in R 3.1.0 by xtable 1.7-3 package
+% Sat May 24 10:56:20 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrr}
@@ -399,8 +398,8 @@ Test du $\chi^2$, Méthode avec point de selle
 > xtable(do.call(rbind,lapply(l.pts.estim,chisquare.test1,hist(sRET),
 + 						pGAL,"saddlepoint")),digits=6)
 \end{Sinput}
-% latex table generated in R 3.0.3 by xtable 1.7-3 package
-% Sat Mar 29 12:42:33 2014
+% latex table generated in R 3.1.0 by xtable 1.7-3 package
+% Sat May 24 10:56:20 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrr}
@@ -425,8 +424,8 @@ Statistique de Kolmogorov-Smirnov
 > ks.test1 <- function(param,x,y) ks.test(x,y,param)
 > xtable(do.call(rbind,mclapply(l.pts.estim,ks.test1,sRET,"pGAL")),digits=6)
 \end{Sinput}
-% latex table generated in R 3.0.3 by xtable 1.7-3 package
-% Sat Mar 29 12:42:33 2014
+% latex table generated in R 3.1.0 by xtable 1.7-3 package
+% Sat May 24 10:56:20 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrr}
@@ -453,8 +452,8 @@ Statistique de distance minimale
 > xtable(do.call(rbind,mclapply(l.pts.estim,
 + 						md.test,sRET,tvariate1,cfGAL,empCF)),digits=6)
 \end{Sinput}
-% latex table generated in R 3.0.3 by xtable 1.7-3 package
-% Sat Mar 29 12:42:33 2014
+% latex table generated in R 3.1.0 by xtable 1.7-3 package
+% Sat May 24 10:56:20 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrr}
@@ -550,8 +549,8 @@ Test de Wald
 + 		caption="Test de Wald", digits=2)
 \end{Sinput}
 \begin{Soutput}
-% latex table generated in R 3.0.3 by xtable 1.7-3 package
-% Sat Mar 29 12:42:33 2014
+% latex table generated in R 3.1.0 by xtable 1.7-3 package
+% Sat May 24 10:56:20 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrrrr}
@@ -587,8 +586,8 @@ des rendements non réduits.
 + 			caption="Paramètres des données non centrées et réduites",
 + 			digits=4)
 \end{Sinput}
-% latex table generated in R 3.0.3 by xtable 1.7-3 package
-% Sat Mar 29 12:42:33 2014
+% latex table generated in R 3.1.0 by xtable 1.7-3 package
+% Sat May 24 10:56:20 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrrrr}
@@ -642,8 +641,8 @@ des rendements non réduits.
 \begin{Sinput}
 > xtable(pts.estim.ns.rn,caption="Paramètres neutres au risque",digits=4)
 \end{Sinput}
-% latex table generated in R 3.0.3 by xtable 1.7-3 package
-% Sat Mar 29 12:42:33 2014
+% latex table generated in R 3.1.0 by xtable 1.7-3 package
+% Sat May 24 10:56:20 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrrrr}
@@ -664,8 +663,8 @@ des rendements non réduits.
 
 \begin{Schunk}
 \begin{Sinput}
-> 	f_putEpps <- function(param,strikeprice,char.fn,eval.time,expiry.time,rate)
-+ 		putEpps(strikeprice,char.fn,eval.time,expiry.time,rate,param=param)
+> 	f_putEpps <- function(param,strikeprice,char.fn,eval.time,expiry.time,rate,...)
++ 		putEpps(strikeprice,char.fn,param,eval.time,expiry.time,rate,...)
 > 	prix_Epps <- as.data.frame(sapply(l.pts.estim.ns.rn,f_putEpps,strike/stock0,cfLM,0,T,rfrate))
 \end{Sinput}
 \end{Schunk}
@@ -674,8 +673,8 @@ des rendements non réduits.
 \begin{Sinput}
 > 	xtable(prix_Epps,caption="Prix unitaire de l'option de vente, Méthode de Epps",digits=6)
 \end{Sinput}
-% latex table generated in R 3.0.3 by xtable 1.7-3 package
-% Sat Mar 29 12:42:33 2014
+% latex table generated in R 3.1.0 by xtable 1.7-3 package
+% Sat May 24 10:56:20 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrrrr}
