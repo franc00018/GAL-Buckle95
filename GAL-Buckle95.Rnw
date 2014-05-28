@@ -394,12 +394,27 @@ xtable(pts.estim.ns.rn,caption="Paramètres neutres au risque",digits=4)
 <<>>=
 	f_putEpps <- function(param,strikeprice,char.fn,eval.time,expiry.time,rate,...)
 		putEpps(strikeprice,char.fn,param,eval.time,expiry.time,rate,...)
-	prix_Epps <- as.data.frame(sapply(l.pts.estim.ns.rn,f_putEpps,strike/stock0,cfLM,0,T,rfrate))
+	prix_put_Epps <- as.data.frame(cbind(strike/stock0,sapply(l.pts.estim.ns.rn,f_putEpps,strike/stock0,cfLM,0,T,rfrate)))
 @
 
 <<results=tex>>=
-	xtable(prix_Epps,caption="Prix unitaire de l'option de vente, Méthode de Epps",digits=6)
+	xtable(prix_put_Epps,caption="Prix unitaire de l'option de vente, Méthode de Epps",digits=6)
 @
+
+\section{Méthode de Carr-Madan}
+<<>>=
+	f_callCarrMadan <- function(param,strikeprice,char.fn,eval.time,expiry.time,rate,alpha,...)
+	{
+		callCarrMadan(strikeprice,char.fn,param,eval.time,expiry.time,rate,alpha,...)
+	}
+	prix_call_CarrMadan <- as.data.frame(cbind(strike/stock0,sapply(l.pts.estim.ns.rn,f_callCarrMadan,strike/stock0,cfLM,0,T,rfrate,alpha)))
+@
+
+<<results=tex>>=
+	xtable(prix_call_CarrMadan,caption="Prix unitaire de l'option d'achat, Méthode de Carr-Madan",digits=6)
+@
+
+
 
 
 

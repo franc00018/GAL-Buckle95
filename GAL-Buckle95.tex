@@ -373,7 +373,7 @@ Test du $\chi^2$, Méthode avec intégration
 + 						cfGAL,"integral")),digits=6)
 \end{Sinput}
 % latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Sat May 24 10:56:20 2014
+% Tue May 27 23:05:26 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrr}
@@ -399,7 +399,7 @@ Test du $\chi^2$, Méthode avec point de selle
 + 						pGAL,"saddlepoint")),digits=6)
 \end{Sinput}
 % latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Sat May 24 10:56:20 2014
+% Tue May 27 23:05:26 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrr}
@@ -425,7 +425,7 @@ Statistique de Kolmogorov-Smirnov
 > xtable(do.call(rbind,mclapply(l.pts.estim,ks.test1,sRET,"pGAL")),digits=6)
 \end{Sinput}
 % latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Sat May 24 10:56:20 2014
+% Tue May 27 23:05:26 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrr}
@@ -453,7 +453,7 @@ Statistique de distance minimale
 + 						md.test,sRET,tvariate1,cfGAL,empCF)),digits=6)
 \end{Sinput}
 % latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Sat May 24 10:56:20 2014
+% Tue May 27 23:05:26 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrr}
@@ -550,7 +550,7 @@ Test de Wald
 \end{Sinput}
 \begin{Soutput}
 % latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Sat May 24 10:56:20 2014
+% Tue May 27 23:05:26 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrrrr}
@@ -587,7 +587,7 @@ des rendements non réduits.
 + 			digits=4)
 \end{Sinput}
 % latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Sat May 24 10:56:20 2014
+% Tue May 27 23:05:26 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrrrr}
@@ -642,7 +642,7 @@ des rendements non réduits.
 > xtable(pts.estim.ns.rn,caption="Paramètres neutres au risque",digits=4)
 \end{Sinput}
 % latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Sat May 24 10:56:20 2014
+% Tue May 27 23:05:26 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrrrr}
@@ -665,35 +665,74 @@ des rendements non réduits.
 \begin{Sinput}
 > 	f_putEpps <- function(param,strikeprice,char.fn,eval.time,expiry.time,rate,...)
 + 		putEpps(strikeprice,char.fn,param,eval.time,expiry.time,rate,...)
-> 	prix_Epps <- as.data.frame(sapply(l.pts.estim.ns.rn,f_putEpps,strike/stock0,cfLM,0,T,rfrate))
+> 	prix_put_Epps <- as.data.frame(cbind(strike/stock0,sapply(l.pts.estim.ns.rn,f_putEpps,strike/stock0,cfLM,0,T,rfrate)))
 \end{Sinput}
 \end{Schunk}
 
 \begin{Schunk}
 \begin{Sinput}
-> 	xtable(prix_Epps,caption="Prix unitaire de l'option de vente, Méthode de Epps",digits=6)
+> 	xtable(prix_put_Epps,caption="Prix unitaire de l'option de vente, Méthode de Epps",digits=6)
 \end{Sinput}
 % latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Sat May 24 10:56:20 2014
+% Tue May 27 23:05:26 2014
 \begin{table}[ht]
 \centering
-\begin{tabular}{rrrrrrrrr}
+\begin{tabular}{rrrrrrrrrr}
   \hline
- & pt.optim1 & pt.optim2 & pt.optim3 & pt.optim4 & pt.optim5 & pt.optim6 & pt.optim7 & pt.optim8 \\ 
+ & V1 & pt.optim1 & pt.optim2 & pt.optim3 & pt.optim4 & pt.optim5 & pt.optim6 & pt.optim7 & pt.optim8 \\ 
   \hline
-1 & 0.015415 & 0.015785 & 0.015431 & 0.015417 & 0.015794 & 0.015427 & 0.015792 & 0.015819 \\ 
-  2 & 0.017360 & 0.017737 & 0.017377 & 0.017362 & 0.017746 & 0.017372 & 0.017742 & 0.017770 \\ 
-  3 & 0.019456 & 0.019838 & 0.019474 & 0.019458 & 0.019847 & 0.019469 & 0.019843 & 0.019871 \\ 
-  4 & 0.021705 & 0.022090 & 0.021724 & 0.021707 & 0.022099 & 0.021719 & 0.022093 & 0.022122 \\ 
-  5 & 0.024107 & 0.024492 & 0.024126 & 0.024109 & 0.024501 & 0.024121 & 0.024495 & 0.024523 \\ 
-  6 & 0.026661 & 0.027044 & 0.026681 & 0.026663 & 0.027053 & 0.026676 & 0.027046 & 0.027074 \\ 
-  7 & 0.029365 & 0.029745 & 0.029385 & 0.029367 & 0.029753 & 0.029381 & 0.029745 & 0.029773 \\ 
-  8 & 0.032217 & 0.032591 & 0.032238 & 0.032219 & 0.032600 & 0.032233 & 0.032591 & 0.032617 \\ 
-  9 & 0.035214 & 0.035580 & 0.035235 & 0.035216 & 0.035589 & 0.035231 & 0.035579 & 0.035605 \\ 
+1 & 0.980000 & 0.015415 & 0.015785 & 0.015431 & 0.015417 & 0.015794 & 0.015427 & 0.015792 & 0.015819 \\ 
+  2 & 0.985000 & 0.017360 & 0.017737 & 0.017377 & 0.017362 & 0.017746 & 0.017372 & 0.017742 & 0.017770 \\ 
+  3 & 0.990000 & 0.019456 & 0.019838 & 0.019474 & 0.019458 & 0.019847 & 0.019469 & 0.019843 & 0.019871 \\ 
+  4 & 0.995000 & 0.021705 & 0.022090 & 0.021724 & 0.021707 & 0.022099 & 0.021719 & 0.022093 & 0.022122 \\ 
+  5 & 1.000000 & 0.024107 & 0.024492 & 0.024126 & 0.024109 & 0.024501 & 0.024121 & 0.024495 & 0.024523 \\ 
+  6 & 1.005000 & 0.026661 & 0.027044 & 0.026681 & 0.026663 & 0.027053 & 0.026676 & 0.027046 & 0.027074 \\ 
+  7 & 1.010000 & 0.029365 & 0.029745 & 0.029385 & 0.029367 & 0.029753 & 0.029381 & 0.029745 & 0.029773 \\ 
+  8 & 1.015000 & 0.032217 & 0.032591 & 0.032238 & 0.032219 & 0.032600 & 0.032233 & 0.032591 & 0.032617 \\ 
+  9 & 1.020000 & 0.035214 & 0.035580 & 0.035235 & 0.035216 & 0.035589 & 0.035231 & 0.035579 & 0.035605 \\ 
    \hline
 \end{tabular}
 \caption{Prix unitaire de l'option de vente, Méthode de Epps} 
 \end{table}\end{Schunk}
+
+\section{Méthode de Carr-Madan}
+\begin{Schunk}
+\begin{Sinput}
+> 	f_callCarrMadan <- function(param,strikeprice,char.fn,eval.time,expiry.time,rate,alpha,...)
++ 	{
++ 		callCarrMadan(strikeprice,char.fn,param,eval.time,expiry.time,rate,alpha,...)
++ 	}
+> 	prix_call_CarrMadan <- as.data.frame(cbind(strike/stock0,sapply(l.pts.estim.ns.rn,f_callCarrMadan,strike/stock0,cfLM,0,T,rfrate,alpha)))
+\end{Sinput}
+\end{Schunk}
+
+\begin{Schunk}
+\begin{Sinput}
+> 	xtable(prix_call_CarrMadan,caption="Prix unitaire de l'option d'achat, Méthode de Carr-Madan",digits=6)
+\end{Sinput}
+% latex table generated in R 3.1.0 by xtable 1.7-3 package
+% Tue May 27 23:05:26 2014
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrrrr}
+  \hline
+ & V1 & pt.optim1 & pt.optim2 & pt.optim3 & pt.optim4 & pt.optim5 & pt.optim6 & pt.optim7 & pt.optim8 \\ 
+  \hline
+1 & 0.980000 & 0.044899 & 0.045144 & 0.044912 & 0.044900 & 0.045150 & 0.044909 & 0.045145 & 0.045163 \\ 
+  2 & 0.985000 & 0.041847 & 0.042096 & 0.041860 & 0.041848 & 0.042102 & 0.041857 & 0.042096 & 0.042114 \\ 
+  3 & 0.990000 & 0.038895 & 0.039148 & 0.038909 & 0.038896 & 0.039153 & 0.038906 & 0.039147 & 0.039165 \\ 
+  4 & 0.995000 & 0.036045 & 0.036300 & 0.036059 & 0.036046 & 0.036306 & 0.036056 & 0.036299 & 0.036317 \\ 
+  5 & 1.000000 & 0.033297 & 0.033555 & 0.033312 & 0.033298 & 0.033560 & 0.033309 & 0.033553 & 0.033571 \\ 
+  6 & 1.005000 & 0.030653 & 0.030912 & 0.030668 & 0.030654 & 0.030918 & 0.030665 & 0.030910 & 0.030928 \\ 
+  7 & 1.010000 & 0.028114 & 0.028375 & 0.028130 & 0.028115 & 0.028381 & 0.028126 & 0.028372 & 0.028390 \\ 
+  8 & 1.015000 & 0.025681 & 0.025943 & 0.025697 & 0.025682 & 0.025949 & 0.025694 & 0.025940 & 0.025958 \\ 
+  9 & 1.020000 & 0.023356 & 0.023618 & 0.023373 & 0.023357 & 0.023624 & 0.023369 & 0.023615 & 0.023633 \\ 
+   \hline
+\end{tabular}
+\caption{Prix unitaire de l'option d'achat, Méthode de Carr-Madan} 
+\end{table}\end{Schunk}
+
+
 
 
 
