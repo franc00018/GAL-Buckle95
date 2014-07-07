@@ -23,7 +23,7 @@
 
 \section{Chargement des paquets}
 <<>>=
-setwd("~/maitrise/GAL-Buckle95/")
+setwd("/home/francois/git/franc00018/GAL-Buckle95")
 library(actuar)
 library(MASS)
 library(xtable)
@@ -401,7 +401,7 @@ xtable(pts.estim.ns.rn,caption="Paramètres neutres au risque",digits=4)
 	xtable(prix_put_Epps,caption="Prix unitaire de l'option de vente, Méthode de Epps",digits=6)
 @
 
-\section{Méthode de Carr-Madan}
+\subsection{Méthode de Carr-Madan}
 <<>>=
 	f_callCarrMadan <- function(param,strikeprice,char.fn,eval.time,expiry.time,rate,alpha,...)
 	{
@@ -413,6 +413,32 @@ xtable(pts.estim.ns.rn,caption="Paramètres neutres au risque",digits=4)
 <<results=tex>>=
 	xtable(prix_call_CarrMadan,caption="Prix unitaire de l'option d'achat, Méthode de Carr-Madan",digits=6)
 @
+
+\subsection{Méthode de Heston}
+
+<<>>=
+	prix_put_Heston <- as.data.frame(cbind(strike/stock0,
+					sapply(l.pts.estim.ns.rn,putHeston,strike/stock0,pnormapproxEsscherLM,0,T,rfrate)))
+@
+
+<<results=tex>>=
+	xtable(prix_put_Heston,caption="Prix unitaire de l'option de vente, Méthode de Heston",digits=6)
+@
+
+\subsection{Méthode de Heston avec point de selle}
+
+
+%<<>>=
+%	prix_put_Heston_Saddle <- as.data.frame(cbind(strike/stock0,
+%					sapply(l.pts.estim.ns.rn,putHestonSaddle,strike/stock0,psaddleapproxGAL,psaddleapproxEsscherGAL,0,T,rfrate)))
+%	
+%@
+%
+%<<results=tex>>=
+%	xtable(prix_put_Heston_Saddle,caption="Prix unitaire de l'option de vente, Méthode de Heston",digits=6)
+%@
+
+
 
 
 
