@@ -23,11 +23,10 @@
 
 \section{Chargement des paquets}
 <<>>=
-setwd("/home/francois/git/franc00018/GAL-Buckle95")
+setwd("/home/francois/git/GAL-Buckle95")
 library(actuar)
 library(MASS)
 library(xtable)
-library(parallel)
 library(moments)
 library(FourierStuff)
 library(GeneralizedAsymmetricLaplace)
@@ -362,15 +361,15 @@ pts.estim.ns <- apply(pts.estim,2,scaleGAL,type="mu",
 #Taux sans risque
 rfrate <- .05/365
 #Échéance
-T <- 30
+Time_to_expiry <- 30
 #Pas de discrétisation courbe des prix
-pas <- 0.005 
+pas <- 1/300 
 #Prix initial
 stock0 <- 299
 #Prix d'exercice dans le cours (put)
-strike1 <- stock0*seq(0.98,1,pas)  
+strike1 <- stock0*seq(0.90,1,pas)  
 #Prix d'exercice hors le cours (put)
-strike2 <- stock0*seq(1+pas,1.02,pas) 
+strike2 <- stock0*seq(1+pas,1.10,pas) 
 #Prix d'exercice combinés
 strike <- c(strike1,strike2)
 #Damping parameter
@@ -394,7 +393,7 @@ xtable(pts.estim.ns.rn,caption="Paramètres neutres au risque",digits=4)
 <<>>=
 	f_putEpps <- function(param,strikeprice,char.fn,eval.time,expiry.time,rate,...)
 		putEpps(strikeprice,char.fn,param,eval.time,expiry.time,rate,...)
-	prix_put_Epps <- as.data.frame(cbind(strike/stock0,sapply(l.pts.estim.ns.rn,f_putEpps,strike/stock0,cfLM,0,T,rfrate)))
+	prix_put_Epps <- as.data.frame(cbind(strike/stock0,sapply(l.pts.estim.ns.rn,f_putEpps,strike/stock0,cfLM,0,Time_to_expiry,rfrate)))
 @
 
 <<results=tex>>=
@@ -407,7 +406,7 @@ xtable(pts.estim.ns.rn,caption="Paramètres neutres au risque",digits=4)
 	{
 		callCarrMadan(strikeprice,char.fn,param,eval.time,expiry.time,rate,alpha,...)
 	}
-	prix_call_CarrMadan <- as.data.frame(cbind(strike/stock0,sapply(l.pts.estim.ns.rn,f_callCarrMadan,strike/stock0,cfLM,0,T,rfrate,alpha)))
+	prix_call_CarrMadan <- as.data.frame(cbind(strike/stock0,sapply(l.pts.estim.ns.rn,f_callCarrMadan,strike/stock0,cfLM,0,Time_to_expiry,rfrate,alpha)))
 @
 
 <<results=tex>>=
@@ -418,7 +417,7 @@ xtable(pts.estim.ns.rn,caption="Paramètres neutres au risque",digits=4)
 
 <<>>=
 	prix_put_Heston <- as.data.frame(cbind(strike/stock0,
-					sapply(l.pts.estim.ns.rn,putHeston,strike/stock0,pnormapproxEsscherLM,0,T,rfrate)))
+					sapply(l.pts.estim.ns.rn,putHeston,strike/stock0,pnormapproxEsscherLM,0,Time_to_expiry,rfrate)))
 @
 
 <<results=tex>>=
@@ -428,15 +427,18 @@ xtable(pts.estim.ns.rn,caption="Paramètres neutres au risque",digits=4)
 \subsection{Méthode de Heston avec point de selle}
 
 
-%<<>>=
-%	prix_put_Heston_Saddle <- as.data.frame(cbind(strike/stock0,
-%					sapply(l.pts.estim.ns.rn,putHestonSaddle,strike/stock0,psaddleapproxGAL,psaddleapproxEsscherGAL,0,T,rfrate)))
-%	
-%@
-%
-%<<results=tex>>=
-%	xtable(prix_put_Heston_Saddle,caption="Prix unitaire de l'option de vente, Méthode de Heston",digits=6)
-%@
+<<>>=
+	prix_put_Heston_Saddle <- as.data.frame(cbind(strike/stock0,
+					sapply(l.pts.estim.ns.rn,putHestonSaddle,strike/stock0,psaddleapproxGAL,psaddleapproxEsscherGAL,0,Time_to_expiry,rfrate)
+	)
+	)
+	
+	
+@
+
+<<results=tex>>=
+	xtable(prix_put_Heston_Saddle,caption="Prix unitaire de l'option de vente, Méthode de Heston avec point de selle",digits=6)
+@
 
 
 
