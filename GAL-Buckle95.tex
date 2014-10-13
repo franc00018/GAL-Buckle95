@@ -13,6 +13,7 @@
 \usepackage{scrtime}
 
 \begin{document}
+\input{GAL-Buckle95-concordance}
 
 \title{GAL Buckle 95}
 \author{François Pelletier}
@@ -24,17 +25,16 @@
 \section{Chargement des paquets}
 \begin{Schunk}
 \begin{Sinput}
-> setwd("~/maitrise/GAL-Buckle95/")
 > library(actuar)
 > library(MASS)
 > library(xtable)
-> library(parallel)
 > library(moments)
 > library(FourierStuff)
 > library(GeneralizedAsymmetricLaplace)
 > library(GMMStuff)
 > library(OptionPricingStuff)
 > library(QuadraticEstimatingEquations)
+> library(parallel)
 \end{Sinput}
 \end{Schunk}
 
@@ -372,8 +372,8 @@ Test du $\chi^2$, Méthode avec intégration
 > xtable(do.call(rbind,lapply(l.pts.estim,chisquare.test1,hist(sRET),
 + 						cfGAL,"integral")),digits=6)
 \end{Sinput}
-% latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Tue May 27 23:05:26 2014
+% latex table generated in R 3.0.2 by xtable 1.7-4 package
+% Mon Oct 13 12:28:07 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrr}
@@ -398,8 +398,8 @@ Test du $\chi^2$, Méthode avec point de selle
 > xtable(do.call(rbind,lapply(l.pts.estim,chisquare.test1,hist(sRET),
 + 						pGAL,"saddlepoint")),digits=6)
 \end{Sinput}
-% latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Tue May 27 23:05:26 2014
+% latex table generated in R 3.0.2 by xtable 1.7-4 package
+% Mon Oct 13 12:28:07 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrr}
@@ -424,8 +424,8 @@ Statistique de Kolmogorov-Smirnov
 > ks.test1 <- function(param,x,y) ks.test(x,y,param)
 > xtable(do.call(rbind,mclapply(l.pts.estim,ks.test1,sRET,"pGAL")),digits=6)
 \end{Sinput}
-% latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Tue May 27 23:05:26 2014
+% latex table generated in R 3.0.2 by xtable 1.7-4 package
+% Mon Oct 13 12:28:07 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrr}
@@ -452,8 +452,8 @@ Statistique de distance minimale
 > xtable(do.call(rbind,mclapply(l.pts.estim,
 + 						md.test,sRET,tvariate1,cfGAL,empCF)),digits=6)
 \end{Sinput}
-% latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Tue May 27 23:05:26 2014
+% latex table generated in R 3.0.2 by xtable 1.7-4 package
+% Mon Oct 13 12:28:07 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrr}
@@ -549,8 +549,8 @@ Test de Wald
 + 		caption="Test de Wald", digits=2)
 \end{Sinput}
 \begin{Soutput}
-% latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Tue May 27 23:05:26 2014
+% latex table generated in R 3.0.2 by xtable 1.7-4 package
+% Mon Oct 13 12:28:07 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrrrr}
@@ -586,8 +586,8 @@ des rendements non réduits.
 + 			caption="Paramètres des données non centrées et réduites",
 + 			digits=4)
 \end{Sinput}
-% latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Tue May 27 23:05:26 2014
+% latex table generated in R 3.0.2 by xtable 1.7-4 package
+% Mon Oct 13 12:28:07 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrrrr}
@@ -612,9 +612,9 @@ des rendements non réduits.
 > #Taux sans risque
 > rfrate <- .05/365
 > #Échéance
-> T <- 30
+> Time_to_expiry <- 30
 > #Pas de discrétisation courbe des prix
-> pas <- 0.005 
+> pas <- 1/300 
 > #Prix initial
 > stock0 <- 299
 > #Prix d'exercice dans le cours (put)
@@ -641,8 +641,8 @@ des rendements non réduits.
 \begin{Sinput}
 > xtable(pts.estim.ns.rn,caption="Paramètres neutres au risque",digits=4)
 \end{Sinput}
-% latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Tue May 27 23:05:26 2014
+% latex table generated in R 3.0.2 by xtable 1.7-4 package
+% Mon Oct 13 12:28:07 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrrrr}
@@ -665,7 +665,7 @@ des rendements non réduits.
 \begin{Sinput}
 > 	f_putEpps <- function(param,strikeprice,char.fn,eval.time,expiry.time,rate,...)
 + 		putEpps(strikeprice,char.fn,param,eval.time,expiry.time,rate,...)
-> 	prix_put_Epps <- as.data.frame(cbind(strike/stock0,sapply(l.pts.estim.ns.rn,f_putEpps,strike/stock0,cfLM,0,T,rfrate)))
+> 	prix_put_Epps <- as.data.frame(cbind(strike/stock0,sapply(l.pts.estim.ns.rn,f_putEpps,strike/stock0,cfLM,0,Time_to_expiry,rfrate)))
 \end{Sinput}
 \end{Schunk}
 
@@ -673,8 +673,8 @@ des rendements non réduits.
 \begin{Sinput}
 > 	xtable(prix_put_Epps,caption="Prix unitaire de l'option de vente, Méthode de Epps",digits=6)
 \end{Sinput}
-% latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Tue May 27 23:05:26 2014
+% latex table generated in R 3.0.2 by xtable 1.7-4 package
+% Mon Oct 13 12:28:07 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrrrrr}
@@ -682,27 +682,31 @@ des rendements non réduits.
  & V1 & pt.optim1 & pt.optim2 & pt.optim3 & pt.optim4 & pt.optim5 & pt.optim6 & pt.optim7 & pt.optim8 \\ 
   \hline
 1 & 0.980000 & 0.015415 & 0.015785 & 0.015431 & 0.015417 & 0.015794 & 0.015427 & 0.015792 & 0.015819 \\ 
-  2 & 0.985000 & 0.017360 & 0.017737 & 0.017377 & 0.017362 & 0.017746 & 0.017372 & 0.017742 & 0.017770 \\ 
-  3 & 0.990000 & 0.019456 & 0.019838 & 0.019474 & 0.019458 & 0.019847 & 0.019469 & 0.019843 & 0.019871 \\ 
-  4 & 0.995000 & 0.021705 & 0.022090 & 0.021724 & 0.021707 & 0.022099 & 0.021719 & 0.022093 & 0.022122 \\ 
-  5 & 1.000000 & 0.024107 & 0.024492 & 0.024126 & 0.024109 & 0.024501 & 0.024121 & 0.024495 & 0.024523 \\ 
-  6 & 1.005000 & 0.026661 & 0.027044 & 0.026681 & 0.026663 & 0.027053 & 0.026676 & 0.027046 & 0.027074 \\ 
-  7 & 1.010000 & 0.029365 & 0.029745 & 0.029385 & 0.029367 & 0.029753 & 0.029381 & 0.029745 & 0.029773 \\ 
-  8 & 1.015000 & 0.032217 & 0.032591 & 0.032238 & 0.032219 & 0.032600 & 0.032233 & 0.032591 & 0.032617 \\ 
-  9 & 1.020000 & 0.035214 & 0.035580 & 0.035235 & 0.035216 & 0.035589 & 0.035231 & 0.035579 & 0.035605 \\ 
+  2 & 0.983333 & 0.016695 & 0.017070 & 0.016711 & 0.016697 & 0.017079 & 0.016707 & 0.017076 & 0.017103 \\ 
+  3 & 0.986667 & 0.018041 & 0.018421 & 0.018059 & 0.018043 & 0.018430 & 0.018054 & 0.018426 & 0.018454 \\ 
+  4 & 0.990000 & 0.019456 & 0.019838 & 0.019474 & 0.019458 & 0.019847 & 0.019469 & 0.019843 & 0.019871 \\ 
+  5 & 0.993333 & 0.020938 & 0.021322 & 0.020957 & 0.020940 & 0.021331 & 0.020952 & 0.021326 & 0.021355 \\ 
+  6 & 0.996667 & 0.022489 & 0.022874 & 0.022507 & 0.022491 & 0.022883 & 0.022503 & 0.022877 & 0.022905 \\ 
+  7 & 1.000000 & 0.024107 & 0.024492 & 0.024126 & 0.024109 & 0.024501 & 0.024121 & 0.024495 & 0.024523 \\ 
+  8 & 1.003333 & 0.025793 & 0.026177 & 0.025812 & 0.025795 & 0.026186 & 0.025808 & 0.026179 & 0.026207 \\ 
+  9 & 1.006667 & 0.027546 & 0.027928 & 0.027566 & 0.027548 & 0.027937 & 0.027561 & 0.027929 & 0.027957 \\ 
+  10 & 1.010000 & 0.029365 & 0.029745 & 0.029385 & 0.029367 & 0.029753 & 0.029381 & 0.029745 & 0.029773 \\ 
+  11 & 1.013333 & 0.031250 & 0.031626 & 0.031271 & 0.031252 & 0.031635 & 0.031266 & 0.031626 & 0.031653 \\ 
+  12 & 1.016667 & 0.033200 & 0.033572 & 0.033221 & 0.033202 & 0.033580 & 0.033217 & 0.033571 & 0.033597 \\ 
+  13 & 1.020000 & 0.035214 & 0.035580 & 0.035235 & 0.035216 & 0.035589 & 0.035231 & 0.035579 & 0.035605 \\ 
    \hline
 \end{tabular}
 \caption{Prix unitaire de l'option de vente, Méthode de Epps} 
 \end{table}\end{Schunk}
 
-\section{Méthode de Carr-Madan}
+\subsection{Méthode de Carr-Madan}
 \begin{Schunk}
 \begin{Sinput}
 > 	f_callCarrMadan <- function(param,strikeprice,char.fn,eval.time,expiry.time,rate,alpha,...)
 + 	{
 + 		callCarrMadan(strikeprice,char.fn,param,eval.time,expiry.time,rate,alpha,...)
 + 	}
-> 	prix_call_CarrMadan <- as.data.frame(cbind(strike/stock0,sapply(l.pts.estim.ns.rn,f_callCarrMadan,strike/stock0,cfLM,0,T,rfrate,alpha)))
+> 	prix_call_CarrMadan <- as.data.frame(cbind(strike/stock0,sapply(l.pts.estim.ns.rn,f_callCarrMadan,strike/stock0,cfLM,0,Time_to_expiry,rfrate,alpha)))
 \end{Sinput}
 \end{Schunk}
 
@@ -710,8 +714,8 @@ des rendements non réduits.
 \begin{Sinput}
 > 	xtable(prix_call_CarrMadan,caption="Prix unitaire de l'option d'achat, Méthode de Carr-Madan",digits=6)
 \end{Sinput}
-% latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Tue May 27 23:05:26 2014
+% latex table generated in R 3.0.2 by xtable 1.7-4 package
+% Mon Oct 13 12:28:07 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrrrrr}
@@ -719,18 +723,107 @@ des rendements non réduits.
  & V1 & pt.optim1 & pt.optim2 & pt.optim3 & pt.optim4 & pt.optim5 & pt.optim6 & pt.optim7 & pt.optim8 \\ 
   \hline
 1 & 0.980000 & 0.044899 & 0.045144 & 0.044912 & 0.044900 & 0.045150 & 0.044909 & 0.045145 & 0.045163 \\ 
-  2 & 0.985000 & 0.041847 & 0.042096 & 0.041860 & 0.041848 & 0.042102 & 0.041857 & 0.042096 & 0.042114 \\ 
-  3 & 0.990000 & 0.038895 & 0.039148 & 0.038909 & 0.038896 & 0.039153 & 0.038906 & 0.039147 & 0.039165 \\ 
-  4 & 0.995000 & 0.036045 & 0.036300 & 0.036059 & 0.036046 & 0.036306 & 0.036056 & 0.036299 & 0.036317 \\ 
-  5 & 1.000000 & 0.033297 & 0.033555 & 0.033312 & 0.033298 & 0.033560 & 0.033309 & 0.033553 & 0.033571 \\ 
-  6 & 1.005000 & 0.030653 & 0.030912 & 0.030668 & 0.030654 & 0.030918 & 0.030665 & 0.030910 & 0.030928 \\ 
-  7 & 1.010000 & 0.028114 & 0.028375 & 0.028130 & 0.028115 & 0.028381 & 0.028126 & 0.028372 & 0.028390 \\ 
-  8 & 1.015000 & 0.025681 & 0.025943 & 0.025697 & 0.025682 & 0.025949 & 0.025694 & 0.025940 & 0.025958 \\ 
-  9 & 1.020000 & 0.023356 & 0.023618 & 0.023373 & 0.023357 & 0.023624 & 0.023369 & 0.023615 & 0.023633 \\ 
+  2 & 0.983333 & 0.042853 & 0.043101 & 0.042866 & 0.042854 & 0.043107 & 0.042863 & 0.043102 & 0.043119 \\ 
+  3 & 0.986667 & 0.040852 & 0.041102 & 0.040865 & 0.040853 & 0.041108 & 0.040862 & 0.041102 & 0.041120 \\ 
+  4 & 0.990000 & 0.038895 & 0.039148 & 0.038909 & 0.038896 & 0.039153 & 0.038906 & 0.039147 & 0.039165 \\ 
+  5 & 0.993333 & 0.036983 & 0.037238 & 0.036998 & 0.036985 & 0.037244 & 0.036995 & 0.037237 & 0.037255 \\ 
+  6 & 0.996667 & 0.035117 & 0.035373 & 0.035132 & 0.035118 & 0.035379 & 0.035129 & 0.035372 & 0.035390 \\ 
+  7 & 1.000000 & 0.033297 & 0.033555 & 0.033312 & 0.033298 & 0.033560 & 0.033309 & 0.033553 & 0.033571 \\ 
+  8 & 1.003333 & 0.031522 & 0.031782 & 0.031538 & 0.031524 & 0.031787 & 0.031534 & 0.031780 & 0.031798 \\ 
+  9 & 1.006667 & 0.029795 & 0.030055 & 0.029810 & 0.029796 & 0.030061 & 0.029807 & 0.030053 & 0.030071 \\ 
+  10 & 1.010000 & 0.028114 & 0.028375 & 0.028130 & 0.028115 & 0.028381 & 0.028126 & 0.028372 & 0.028390 \\ 
+  11 & 1.013333 & 0.026480 & 0.026742 & 0.026496 & 0.026481 & 0.026748 & 0.026493 & 0.026739 & 0.026757 \\ 
+  12 & 1.016667 & 0.024894 & 0.025156 & 0.024910 & 0.024895 & 0.025162 & 0.024907 & 0.025153 & 0.025171 \\ 
+  13 & 1.020000 & 0.023356 & 0.023618 & 0.023373 & 0.023357 & 0.023624 & 0.023369 & 0.023615 & 0.023633 \\ 
    \hline
 \end{tabular}
 \caption{Prix unitaire de l'option d'achat, Méthode de Carr-Madan} 
 \end{table}\end{Schunk}
+
+\subsection{Méthode de Heston}
+
+\begin{Schunk}
+\begin{Sinput}
+> 	prix_put_Heston <- as.data.frame(cbind(strike/stock0,
++ 					sapply(l.pts.estim.ns.rn,putHeston,strike/stock0,pnormapproxEsscherLM,0,Time_to_expiry,rfrate)))
+\end{Sinput}
+\end{Schunk}
+
+\begin{Schunk}
+\begin{Sinput}
+> 	xtable(prix_put_Heston,caption="Prix unitaire de l'option de vente, Méthode de Heston",digits=6)
+\end{Sinput}
+% latex table generated in R 3.0.2 by xtable 1.7-4 package
+% Mon Oct 13 12:28:07 2014
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrrrr}
+  \hline
+ & V1 & pt.optim1 & pt.optim2 & pt.optim3 & pt.optim4 & pt.optim5 & pt.optim6 & pt.optim7 & pt.optim8 \\ 
+  \hline
+1 & 0.980000 & 0.000042 & 0.000050 & 0.000042 & 0.000042 & 0.000050 & 0.000042 & 0.000050 & 0.000050 \\ 
+  2 & 0.983333 & 0.000112 & 0.000127 & 0.000113 & 0.000112 & 0.000127 & 0.000113 & 0.000127 & 0.000128 \\ 
+  3 & 0.986667 & 0.000258 & 0.000282 & 0.000259 & 0.000258 & 0.000283 & 0.000259 & 0.000282 & 0.000284 \\ 
+  4 & 0.990000 & 0.000529 & 0.000565 & 0.000531 & 0.000529 & 0.000566 & 0.000530 & 0.000565 & 0.000568 \\ 
+  5 & 0.993333 & 0.000988 & 0.001037 & 0.000991 & 0.000988 & 0.001039 & 0.000990 & 0.001038 & 0.001041 \\ 
+  6 & 0.996667 & 0.001704 & 0.001766 & 0.001707 & 0.001704 & 0.001767 & 0.001706 & 0.001766 & 0.001770 \\ 
+  7 & 1.000000 & 0.002739 & 0.002811 & 0.002743 & 0.002740 & 0.002812 & 0.002742 & 0.002811 & 0.002816 \\ 
+  8 & 1.003333 & 0.004140 & 0.004216 & 0.004144 & 0.004141 & 0.004217 & 0.004143 & 0.004216 & 0.004221 \\ 
+  9 & 1.006667 & 0.005924 & 0.005997 & 0.005928 & 0.005925 & 0.005999 & 0.005927 & 0.005998 & 0.006003 \\ 
+  10 & 1.010000 & 0.008078 & 0.008144 & 0.008081 & 0.008078 & 0.008145 & 0.008081 & 0.008144 & 0.008148 \\ 
+  11 & 1.013333 & 0.010561 & 0.010615 & 0.010564 & 0.010561 & 0.010616 & 0.010563 & 0.010615 & 0.010619 \\ 
+  12 & 1.016667 & 0.013314 & 0.013356 & 0.013316 & 0.013315 & 0.013357 & 0.013316 & 0.013356 & 0.013359 \\ 
+  13 & 1.020000 & 0.016273 & 0.016303 & 0.016275 & 0.016274 & 0.016304 & 0.016275 & 0.016303 & 0.016305 \\ 
+   \hline
+\end{tabular}
+\caption{Prix unitaire de l'option de vente, Méthode de Heston} 
+\end{table}\end{Schunk}
+
+\subsection{Méthode de Heston avec point de selle}
+
+
+\begin{Schunk}
+\begin{Sinput}
+> 	prix_put_Heston_Saddle <- as.data.frame(cbind(strike/stock0,
++ 					sapply(l.pts.estim.ns.rn,putHestonSaddle,strike/stock0,psaddleapproxGAL,psaddleapproxEsscherGAL,0,Time_to_expiry,rfrate)
++ 	)
++ 	)
+> 	
+> 	
+\end{Sinput}
+\end{Schunk}
+
+\begin{Schunk}
+\begin{Sinput}
+> 	xtable(prix_put_Heston_Saddle,caption="Prix unitaire de l'option de vente, Méthode de Heston avec point de selle",digits=6)
+\end{Sinput}
+% latex table generated in R 3.0.2 by xtable 1.7-4 package
+% Mon Oct 13 12:28:07 2014
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrrrr}
+  \hline
+ & V1 & pt.optim1 & pt.optim2 & pt.optim3 & pt.optim4 & pt.optim5 & pt.optim6 & pt.optim7 & pt.optim8 \\ 
+  \hline
+1 & 0.980000 & 0.000013 & 0.000028 & 0.000014 & 0.000013 & 0.000029 & 0.000014 & 0.000027 & 0.000028 \\ 
+  2 & 0.983333 & 0.000031 & 0.000058 & 0.000033 & 0.000031 & 0.000059 & 0.000033 & 0.000057 & 0.000059 \\ 
+  3 & 0.986667 & 0.000080 & 0.000125 & 0.000082 & 0.000080 & 0.000126 & 0.000082 & 0.000125 & 0.000129 \\ 
+  4 & 0.990000 & 0.000218 & 0.000286 & 0.000219 & 0.000219 & 0.000288 & 0.000219 & 0.000289 & 0.000295 \\ 
+  5 & 0.993333 & 0.000643 & 0.000731 & 0.000640 & 0.000643 & 0.000734 & 0.000639 & 0.000742 & 0.000751 \\ 
+  6 & 0.996667 & 0.002824 & 0.002995 & 0.002821 & 0.002825 & 0.003000 & 0.002818 & 0.003015 & 0.003032 \\ 
+  7 & 1.000000 & 50.670706 & 54.250289 & 50.855258 & 50.688713 & 54.335797 & 50.813217 & 54.254710 & 54.521211 \\ 
+  8 & 1.003333 & 0.000672 & 0.000579 & 0.000654 & 0.000672 & 0.000579 & 0.000655 & 0.000601 & 0.000599 \\ 
+  9 & 1.006667 & 0.005575 & 0.005597 & 0.005572 & 0.005575 & 0.005598 & 0.005571 & 0.005606 & 0.005609 \\ 
+  10 & 1.010000 & 0.008175 & 0.008202 & 0.008176 & 0.008175 & 0.008202 & 0.008175 & 0.008204 & 0.008206 \\ 
+  11 & 1.013333 & 0.010842 & 0.010867 & 0.010845 & 0.010842 & 0.010868 & 0.010845 & 0.010865 & 0.010866 \\ 
+  12 & 1.016667 & 0.013672 & 0.013694 & 0.013677 & 0.013672 & 0.013694 & 0.013676 & 0.013689 & 0.013689 \\ 
+  13 & 1.020000 & 0.016638 & 0.016658 & 0.016643 & 0.016638 & 0.016658 & 0.016643 & 0.016651 & 0.016651 \\ 
+   \hline
+\end{tabular}
+\caption{Prix unitaire de l'option de vente, Méthode de Heston avec point de selle} 
+\end{table}\end{Schunk}
+
+
 
 
 

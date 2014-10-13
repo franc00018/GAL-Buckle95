@@ -13,6 +13,7 @@
 \usepackage{scrtime}
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 \title{GAL Buckle 95}
 \author{François Pelletier}
@@ -23,7 +24,6 @@
 
 \section{Chargement des paquets}
 <<>>=
-setwd("/home/francois/git/GAL-Buckle95")
 library(actuar)
 library(MASS)
 library(xtable)
@@ -33,6 +33,7 @@ library(GeneralizedAsymmetricLaplace)
 library(GMMStuff)
 library(OptionPricingStuff)
 library(QuadraticEstimatingEquations)
+library(parallel)
 @
 
 \section{Constantes et données}
@@ -367,9 +368,9 @@ pas <- 1/300
 #Prix initial
 stock0 <- 299
 #Prix d'exercice dans le cours (put)
-strike1 <- stock0*seq(0.90,1,pas)  
+strike1 <- stock0*seq(0.98,1,pas)  
 #Prix d'exercice hors le cours (put)
-strike2 <- stock0*seq(1+pas,1.10,pas) 
+strike2 <- stock0*seq(1+pas,1.02,pas) 
 #Prix d'exercice combinés
 strike <- c(strike1,strike2)
 #Damping parameter
